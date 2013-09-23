@@ -1,6 +1,9 @@
 test: database-test
 	./database
 
+demo: c database
+	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" demo.rs
+
 bisschen-threads:
 	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" bisschen-threads.rs
 
