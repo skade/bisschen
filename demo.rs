@@ -1,23 +1,20 @@
 extern mod c;
 extern mod database;
 
-use c::*;
 use database::*;
-use std::comm::*;
 use std::c_str::*;
-use std::util::*;
 
 struct List<T> {
   contents: T,
 }
 
 trait Lines {
-  fn lines<'a>(&'a self) -> &'a Iterator<CString>;
+  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString>;
 }
 
 impl Lines for Tags {
-  fn lines<'a>(&'a self) -> &'a Iterator<CString> {
-    self as &Iterator<CString>
+  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString> {
+    self as &mut Iterator<CString>
   }
 }
 
@@ -28,17 +25,12 @@ impl<T: Lines> List<T> {
 
   fn print_lines(&mut self) {
     let mut lines = self.contents.lines();
-    match lines.next() {
-      Some(c_string) => { }
-      None => { }
+    for line in lines {
+      match line.as_str() {
+        Some(str) => { println(str) }
+        None => { }
+      }
     }
-
-    //for line in self.contents.lines() {
-    //  match line.as_str() {
-    //    Some(str) => { println(str) }
-    //    None => { }
-    //  }
-    //}
   }
 }
 
