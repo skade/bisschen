@@ -12,12 +12,12 @@ struct List<'self> {
 }
 
 trait Lines {
-  fn lines<'a>(&'a self) -> &'a Iterator<CString>;
+  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString>;
 }
 
 impl Lines for Tags {
-  fn lines<'a>(&'a self) -> &'a Iterator<CString> {
-    self as &'a Iterator<CString>
+  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString> {
+    self as &'a mut Iterator<CString>
   }
 }
 
@@ -27,13 +27,19 @@ impl<'self> List<'self> {
   }
 
   fn print_lines(&mut self) {
-    let mut contents = self.contents;
-    for line in contents.lines() {
-      match line.as_str() {
-        Some(str) => { println(str) }
-        None => { }
-      }
+    let mut contents = *self.contents;
+    let mut lines = contents.lines();
+    match lines.next() {
+      Some(c_string) => { }
+      None => { }
     }
+
+    //for line in self.contents.lines() {
+    //  match line.as_str() {
+    //    Some(str) => { println(str) }
+    //    None => { }
+    //  }
+    //}
   }
 }
 
