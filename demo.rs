@@ -7,28 +7,27 @@ use std::comm::*;
 use std::c_str::*;
 use std::util::*;
 
-struct List<'self> {
-  contents: &'self Lines,
+struct List<T> {
+  contents: T,
 }
 
 trait Lines {
-  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString>;
+  fn lines<'a>(&'a self) -> &'a Iterator<CString>;
 }
 
 impl Lines for Tags {
-  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString> {
-    self as &'a mut Iterator<CString>
+  fn lines<'a>(&'a self) -> &'a Iterator<CString> {
+    self as &Iterator<CString>
   }
 }
 
-impl<'self> List<'self> {
-  fn new(contents: &'self Lines) -> List<'self> {
+impl<T: Lines> List<T> {
+  fn new(contents: T) -> List<T> {
     List { contents: contents }
   }
 
   fn print_lines(&mut self) {
-    let mut contents = *self.contents;
-    let mut lines = contents.lines();
+    let mut lines = self.contents.lines();
     match lines.next() {
       Some(c_string) => { }
       None => { }
@@ -45,7 +44,7 @@ impl<'self> List<'self> {
 
 fn main() {
   let database = Database::open("/Users/skade/Mail");
-  let tags: &Lines = &database.tags() as &Lines;
-  let mut list = List::new(tags);
+  let tags = database.tags();
+  let mut list: List<Tags> = List::new(tags);
   list.print_lines()
 }
