@@ -4,14 +4,32 @@ extern mod database;
 use c::*;
 use database::*;
 use std::comm::*;
+use std::c_str::*;
+use std::util::*;
 
 struct Position {
   col: i32,
   line: i32
 }
 
-struct List {
+struct List<T> {
+  contents: T,
   position: Position,
+}
+
+trait Lines {
+  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString>;
+}
+
+trait Drawable {
+  fn draw(&mut self);
+  fn redraw(&mut self);
+}
+
+impl Lines for Tags {
+  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString> {
+    self as &mut Iterator<CString>
+  }
 }
 
 impl Position {
@@ -23,17 +41,45 @@ impl Position {
   }
 }
 
-impl List {
-  fn new() -> List {
-    List { position: Position { col: 0, line: 0} }
+impl<T: Lines> Drawable for List<T> {
+  fn draw(&mut self) {
+    self.display_lines();
+    self.refresh();
+  }
+
+  fn redraw(&mut self) {
+    self.clear();
+    self.draw();
+  }
+}
+
+
+#[fixed_stack_segment]
+fn printstr(str: &str) {
+  do str.with_c_str
+    |c_string| { unsafe { ncurses::printw(c_string) } };
+}
+
+impl<T: Lines> List<T> {
+  fn new(contents: T) -> List<T> {
+    List { contents: contents, position: Position { col: 0, line: 0 } }
+  }
+
+  fn display_lines(&mut self) {
+    for line in self.contents.lines() {
+      match line.as_str() {
+        Some(str) => { printstr(str) }
+        None => { }
+      }
+      self.position.line += 1;
+      self.position.move_to()
+    }
   }
 
   #[fixed_stack_segment]
-  fn print_line(&mut self, str: &str) {
+  fn print_line(&self, str: &str) {
     do str.with_c_str
       |c_string| { unsafe { ncurses::printw(c_string) } };
-    self.position.line += 1;
-    self.position.move_to()
   }
 
   #[fixed_stack_segment]
@@ -111,47 +157,32 @@ impl Input {
   }
 }
 
-struct Interface {
-  database: Database,
+struct Interface<T> {
   port: Port<int>,
-  view: List,
+  view: T,
   active: bool,
   redraw_count: int
 }
 
-impl Interface {
-  fn new(database: Database, port: Port<int>) -> Interface {
-    Interface { database: database,
-                port: port,
-                view: List::new(),
+impl<T: Drawable> Interface<T> {
+  fn new(view: T, port: Port<int>) -> Interface<T> {
+
+    Interface { port: port,
+                view: view,
                 active: false,
                 redraw_count: 0 }
   }
 
-  fn redraw(&mut self) {
-    self.view.clear();
-    for tag in self.database.tags() {
-      match tag.as_str() {
-        Some(str) => { self.view.print_line(str) },
-        None => { }
-      }
-    }
-    self.view.print_line(self.redraw_count.to_str());
-    self.redraw_count += 1;
-    self.view.refresh();
-  }
-
   #[fixed_stack_segment]
   fn run(&mut self) {
+    self.view.draw();
     loop {
-      self.redraw();
       let val = self.port.recv();
-
-      self.view.print_line(val.to_str());
 
       if val == 10 {
         return;
       }
+      self.view.redraw();
     }
   }
 }
@@ -164,7 +195,9 @@ fn main() {
   let input = Input::new(chan);
 
   let database = Database::open("/Users/skade/Mail");
-  let mut interface = Interface::new(database, port);
+  let tags = id(database.tags());
+  let list = List::new(tags);
+  let mut interface: Interface<List<Tags>> = Interface::new(list, port);
   do spawn {
     input.run();
   }
