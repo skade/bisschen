@@ -1,6 +1,7 @@
 extern mod c;
 extern mod database;
 extern mod input;
+extern mod curses;
 
 use c::*;
 use database::*;
@@ -8,6 +9,7 @@ use std::comm::*;
 use std::c_str::*;
 use std::util::*;
 use input::*;
+use curses::*;
 
 struct Position {
   col: i32,
@@ -97,41 +99,6 @@ impl<T: Lines> List<T> {
   }
 }
 
-struct Curse {
-  cursing: bool,
-}
-
-impl Curse {
-  fn new() -> Curse {
-    Curse { cursing: false }
-  }
-
-  #[fixed_stack_segment]
-  fn start_cursing(&mut self) {
-    self.cursing = true;
-    unsafe {
-      ncurses::initscr();
-      ncurses::noecho();
-    }
-  }
-
-  #[fixed_stack_segment]
-  #[inline(never)]
-  fn stop_cursing(&mut self) {
-    if self.cursing {
-      self.cursing = false;
-      unsafe { ncurses::endwin() };
-    }
-  }
-}
-
-impl Drop for Curse {
-  fn drop(&mut self) {
-    self.stop_cursing();
-    println("stopped cursing");
-  }
-}
-
 struct Interface<T> {
   port: Port<int>,
   view: T,
@@ -163,8 +130,8 @@ impl<T: Drawable> Interface<T> {
 }
 
 fn main() {
-  let mut curse = Curse::new();
-  curse.start_cursing();
+  let mut curses = Curses::new();
+  curses.start_cursing();
 
   let (port, chan) = stream::<int>();
   let input = Input::new(chan);
