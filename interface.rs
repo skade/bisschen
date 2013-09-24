@@ -11,14 +11,14 @@ use database::*;
 use std::comm::*;
 use std::c_str::*;
 
-struct Position {
+struct Cursor {
   col: i32,
   line: i32
 }
 
 struct List<T> {
   contents: T,
-  position: Position,
+  cursor: Cursor,
 }
 
 struct Line {
@@ -57,12 +57,23 @@ impl Lines for Threads {
   }
 }
 
-impl Position {
+impl Cursor {
   #[fixed_stack_segment]
   fn move_to(&self) {
     unsafe {
       ncurses::move(self.line, self.col);
     }
+  }
+
+  fn next_line(&mut self) {
+    self.line += 1;
+    self.move_to()
+  }
+
+  fn reset(&mut self) {
+    self.line = 0;
+    self.col = 0;
+    self.move_to()
   }
 }
 
@@ -86,15 +97,14 @@ fn printstr(str: &str) {
 
 impl<T: Lines> List<T> {
   pub fn new(contents: T) -> List<T> {
-    List { contents: contents, position: Position { col: 0, line: 0 } }
+    List { contents: contents, cursor: Cursor { col: 0, line: 0 } }
   }
 
   fn display_lines(&mut self) {
     let lines = self.contents.lines();
     for line in lines.iter() {
       printstr(line.line);
-      self.position.line += 1;
-      self.position.move_to()
+      self.cursor.next_line()
     }
   }
 
@@ -107,8 +117,7 @@ impl<T: Lines> List<T> {
   #[fixed_stack_segment]
   fn clear(&mut self) {
     unsafe { ncurses::clear(); }
-    self.position = Position { col: 0, line: 0 };
-    self.position.move_to()
+    self.cursor.reset()
   }
 
   #[fixed_stack_segment]
