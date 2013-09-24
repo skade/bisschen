@@ -4,8 +4,11 @@ extern mod input;
 extern mod curses;
 extern mod interface;
 
+use c::*;
 use database::*;
 use std::comm::*;
+use input::*;
+use curses::*;
 use interface::*;
 
 fn main() {
@@ -16,10 +19,8 @@ fn main() {
   let input = Input::new(chan);
 
   let database = Database::open("/Users/skade/Mail");
-  let threads = database.query("*", Some(20), Some(0)).threads();
-  let list = List::new(threads);
-  let mut interface: Interface<List<Threads>> = Interface::new(list, port);
-
+  let tags = database.tags();
+  let mut interface: Interface<List<Tags>> = Interface::new(list, port);
   do spawn {
     input.run();
   }

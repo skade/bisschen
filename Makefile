@@ -1,10 +1,8 @@
-test: database-test
-	./database
+all: bisschen-tags bisschen-threads
 
-demo: c database
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" demo.rs
-
-bisschen-threads:
+bisschen-tags: interface
+	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" bisschen-tags.rs
+bisschen-threads: interface
 	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" bisschen-threads.rs
 
 interface: c database input curses
@@ -24,3 +22,6 @@ input: c
 
 curses: c
 	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" curses.rs
+
+demo: c database
+	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" demo.	

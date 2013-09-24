@@ -1,3 +1,6 @@
+#[crate_type = "lib"];
+#[link(name = "interface", vers = "0.01")];
+
 extern mod c;
 extern mod database;
 extern mod input;
@@ -7,9 +10,6 @@ use c::*;
 use database::*;
 use std::comm::*;
 use std::c_str::*;
-use std::util::*;
-use input::*;
-use curses::*;
 
 struct Position {
   col: i32,
@@ -57,7 +57,6 @@ impl Lines for Threads {
   }
 }
 
-
 impl Position {
   #[fixed_stack_segment]
   fn move_to(&self) {
@@ -79,7 +78,6 @@ impl<T: Lines> Drawable for List<T> {
   }
 }
 
-
 #[fixed_stack_segment]
 fn printstr(str: &str) {
   do str.with_c_str
@@ -87,7 +85,7 @@ fn printstr(str: &str) {
 }
 
 impl<T: Lines> List<T> {
-  fn new(contents: T) -> List<T> {
+  pub fn new(contents: T) -> List<T> {
     List { contents: contents, position: Position { col: 0, line: 0 } }
   }
 
@@ -127,7 +125,7 @@ struct Interface<T> {
 }
 
 impl<T: Drawable> Interface<T> {
-  fn new(view: T, port: Port<int>) -> Interface<T> {
+  pub fn new(view: T, port: Port<int>) -> Interface<T> {
 
     Interface { port: port,
                 view: view,
@@ -136,7 +134,7 @@ impl<T: Drawable> Interface<T> {
   }
 
   #[fixed_stack_segment]
-  fn run(&mut self) {
+  pub fn run(&mut self) {
     self.view.draw();
     loop {
       let val = self.port.recv();
@@ -147,21 +145,4 @@ impl<T: Drawable> Interface<T> {
       self.view.redraw();
     }
   }
-}
-
-fn main() {
-  let mut curses = Curses::new();
-  curses.start_cursing();
-
-  let (port, chan) = stream::<int>();
-  let input = Input::new(chan);
-
-  let database = Database::open("/Users/skade/Mail");
-  let tags = id(database.tags());
-  let list = List::new(tags);
-  let mut interface: Interface<List<Tags>> = Interface::new(list, port);
-  do spawn {
-    input.run();
-  }
-  interface.run();
 }
