@@ -21,8 +21,12 @@ struct List<T> {
   position: Position,
 }
 
+struct Line {
+  line: ~str,
+}
+
 trait Lines {
-  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString>;
+  fn lines(&self) -> ~[Line];
 }
 
 trait Drawable {
@@ -31,10 +35,28 @@ trait Drawable {
 }
 
 impl Lines for Tags {
-  fn lines<'a>(&'a mut self) -> &'a mut Iterator<CString> {
-    self as &mut Iterator<CString>
+  fn lines(&self) -> ~[Line] {
+    self.map(|c_string| {
+      match c_string.as_str() {
+        Some(str) => { Line { line: str.to_owned() } }
+        None => { fail!("Tags should never yield illegal strings!") }
+      }
+    }).to_owned_vec()
   }
 }
+
+impl Lines for Threads {
+  fn lines(&self) -> ~[Line] {
+    self.map(|x| x.subject())
+        .map(|c_string| {
+          match c_string.as_str() {
+            Some(str) => { Line { line: str.to_owned() } }
+            None => { fail!("Threads should never yield illegal subjects!") }
+          }
+        }).to_owned_vec()
+  }
+}
+
 
 impl Position {
   #[fixed_stack_segment]
@@ -70,11 +92,9 @@ impl<T: Lines> List<T> {
   }
 
   fn display_lines(&mut self) {
-    for line in self.contents.lines() {
-      match line.as_str() {
-        Some(str) => { printstr(str) }
-        None => { }
-      }
+    let lines = self.contents.lines();
+    for line in lines.iter() {
+      printstr(line.line);
       self.position.line += 1;
       self.position.move_to()
     }

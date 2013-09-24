@@ -1,8 +1,11 @@
 extern mod c;
 extern mod database;
 
+use c::*;
 use database::*;
+use std::comm::*;
 use std::c_str::*;
+use std::util::*;
 
 struct List<T> {
   contents: T,
@@ -25,6 +28,7 @@ impl<T: Lines> List<T> {
 
   fn print_lines(&mut self) {
     let mut lines = self.contents.lines();
+
     for line in lines {
       match line.as_str() {
         Some(str) => { println(str) }
