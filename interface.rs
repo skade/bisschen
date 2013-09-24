@@ -1,11 +1,13 @@
 extern mod c;
 extern mod database;
+extern mod input;
 
 use c::*;
 use database::*;
 use std::comm::*;
 use std::c_str::*;
 use std::util::*;
+use input::*;
 
 struct Position {
   col: i32,
@@ -127,33 +129,6 @@ impl Drop for Curse {
   fn drop(&mut self) {
     self.stop_cursing();
     println("stopped cursing");
-  }
-}
-
-struct Input {
-  channel: Chan<int>,
-}
-
-impl Input {
-  fn new(channel: Chan<int>) -> Input {
-    Input { channel: channel }
-  }
-
-  #[fixed_stack_segment]
-  fn run(&self) {
-    loop {
-      unsafe {
-        let key = ncurses::getch().to_int();
-        self.handle_key(key);
-        if key == 10 {
-          return;
-        }
-      }
-    }
-  }
-
-  fn handle_key(&self, key: int) {
-    self.channel.send(key);
   }
 }
 

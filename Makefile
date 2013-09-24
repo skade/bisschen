@@ -7,7 +7,7 @@ demo: c database
 bisschen-threads:
 	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" bisschen-threads.rs
 
-interface: c database
+interface: c database input
 	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" interface.rs
 
 database: c
@@ -18,3 +18,6 @@ database-test: c
 
 c:
 	rustc -L. -L /opt/local/lib --link-args="-lnotmuch" c.rs
+
+input: c
+	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" input.rs
