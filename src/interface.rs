@@ -1,12 +1,7 @@
 #[crate_type = "lib"];
 #[link(name = "interface", vers = "0.01")];
 
-extern mod c;
-extern mod database;
-extern mod input;
-extern mod curses;
-
-use c::*;
+use c::ncurses::*;
 use database::*;
 use std::comm::*;
 use std::c_str::*;
@@ -67,7 +62,7 @@ impl Cursor {
   #[fixed_stack_segment]
   fn move_to(&self) {
     unsafe {
-      ncurses::move(self.line, self.col);
+      move(self.line, self.col);
     }
   }
 
@@ -104,7 +99,7 @@ impl<T> KeyHandler for List<T> {
 #[fixed_stack_segment]
 fn printstr(str: &str) {
   do str.with_c_str
-    |c_string| { unsafe { ncurses::printw(c_string) } };
+    |c_string| { unsafe { printw(c_string) } };
 }
 
 impl<T: Lines> List<T> {
@@ -125,18 +120,18 @@ impl<T: Lines> List<T> {
   #[fixed_stack_segment]
   fn print_line(&self, str: &str) {
     do str.with_c_str
-      |c_string| { unsafe { ncurses::printw(c_string) } };
+      |c_string| { unsafe { printw(c_string) } };
   }
 
   #[fixed_stack_segment]
   fn clear(&mut self) {
-    unsafe { ncurses::clear(); }
+    unsafe { clear(); }
     self.cursor.reset()
   }
 
   #[fixed_stack_segment]
   fn refresh(&self) {
-    unsafe { ncurses::refresh(); }
+    unsafe { refresh(); }
   }
 }
 

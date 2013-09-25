@@ -1,9 +1,4 @@
-#[crate_type = "lib"];
-#[link(name = "input", vers = "0.01")];
-
-extern mod c;
-
-use c::*;
+use c::ncurses::*;
 
 struct Input {
   channel: Chan<int>,
@@ -18,7 +13,7 @@ impl Input {
   pub fn run(&self) {
     loop {
       unsafe {
-        let key = ncurses::getch().to_int();
+        let key = getch().to_int();
         self.handle_key(key);
         if key == 10 {
           return;

@@ -1,28 +1,23 @@
+RUST ?= rust
+RUSTC ?= rustc
+RUSTFLAGS ?= -O -Z debug-info -L /opt/local/lib -L build --link-args="-lnotmuch -lncurses"
+VERSION=0.1-pre
+
+lib_files=\
+		      src/c.rs \
+		      src/curses.rs \
+		      src/input.rs \
+		      src/database.rs \
+		      src/interface.rs
+
 all: bisschen-tags bisschen-threads
 
-bisschen-tags: interface
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" bisschen-tags.rs
+bisschen-tags: lib
+	$(RUSTC) $(RUSTFLAGS) src/bisschen-tags.rs --out-dir=build
 	
-bisschen-threads: interface
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" bisschen-threads.rs
+bisschen-threads: lib
+	$(RUSTC) $(RUSTFLAGS) src/bisschen-threads.rs --out-dir=build
 
-interface: c database input curses
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" interface.rs
-
-database: c
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch" database.rs
-
-database-test: c
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch" --test database.rs
-
-c:
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch" c.rs
-
-input: c
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" input.rs
-
-curses: c
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" curses.rs
-
-demo: c database
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" demo.rs
+lib: $(lib_files)
+	mkdir -p build/
+	$(RUSTC) $(RUSTFLAGS) src/lib.rs --out-dir=build

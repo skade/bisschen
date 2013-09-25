@@ -1,12 +1,10 @@
-extern mod c;
-extern mod database;
-extern mod input;
-extern mod curses;
-extern mod interface;
+extern mod bisschen;
 
-use database::*;
+use bisschen::database::*;
+use bisschen::input::*;
+use bisschen::curses::*;
+use bisschen::interface::*;
 use std::comm::*;
-use interface::*;
 
 fn main() {
   let mut curses = Curses::new();

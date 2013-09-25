@@ -1,15 +1,10 @@
-extern mod c;
-extern mod database;
-extern mod input;
-extern mod curses;
-extern mod interface;
+extern mod bisschen;
 
-use c::*;
-use database::*;
+use bisschen::database::*;
+use bisschen::input::*;
+use bisschen::curses::*;
+use bisschen::interface::*;
 use std::comm::*;
-use input::*;
-use curses::*;
-use interface::*;
 
 fn main() {
   let mut curses = Curses::new();
@@ -20,6 +15,7 @@ fn main() {
 
   let database = Database::open("/Users/skade/Mail");
   let tags = database.tags();
+  let list = List::new(tags);
   let mut interface: Interface<List<Tags>> = Interface::new(list, port);
   do spawn {
     input.run();

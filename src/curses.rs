@@ -1,9 +1,4 @@
-#[crate_type = "lib"];
-#[link(name = "curses", vers = "0.01")];
-
-extern mod c;
-
-use c::*;
+use c::ncurses::*;
 
 struct Curses {
   cursing: bool,
@@ -18,9 +13,9 @@ impl Curses {
   pub fn start_cursing(&mut self) {
     self.cursing = true;
     unsafe {
-      ncurses::initscr();
-      ncurses::start_color();
-      ncurses::noecho();
+      initscr();
+      start_color();
+      noecho();
     }
   }
 
@@ -29,7 +24,7 @@ impl Curses {
   pub fn stop_cursing(&mut self) {
     if self.cursing {
       self.cursing = false;
-      unsafe { ncurses::endwin() };
+      unsafe { endwin() };
     }
   }
 }

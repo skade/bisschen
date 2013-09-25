@@ -4,16 +4,16 @@
 mod notmuch {
   use std::libc::{c_char,c_int,time_t};
 
-  struct notmuch_config_t;
-  struct notmuch_tags_t;
-  struct notmuch_database_t;
-  struct notmuch_status_t;
-  struct notmuch_query_t;
-  struct notmuch_threads_t;
-  struct notmuch_thread_t;
-  struct notmuch_messages_t;
-  struct notmuch_message_t;
-  struct notmuch_filenames_t;
+  pub struct notmuch_config_t;
+  pub struct notmuch_tags_t;
+  pub struct notmuch_database_t;
+  pub struct notmuch_status_t;
+  pub struct notmuch_query_t;
+  pub struct notmuch_threads_t;
+  pub struct notmuch_thread_t;
+  pub struct notmuch_messages_t;
+  pub struct notmuch_message_t;
+  pub struct notmuch_filenames_t;
 
   pub enum notmuch_database_mode_t {
       NOTMUCH_DATABASE_MODE_READ_ONLY = 0,
