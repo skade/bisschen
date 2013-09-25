@@ -21,3 +21,6 @@ bisschen-threads: lib
 lib: $(lib_files)
 	mkdir -p build/
 	$(RUSTC) $(RUSTFLAGS) src/lib.rs --out-dir=build
+
+clean:
+	git clean -f -d -X
