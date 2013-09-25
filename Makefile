@@ -5,7 +5,6 @@ VERSION=0.1-pre
 
 lib_files=\
 		      src/c.rs \
-		      src/curses.rs \
 		      src/input.rs \
 		      src/database.rs \
 		      src/interface.rs \

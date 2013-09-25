@@ -2,7 +2,6 @@ use c::termbox::*;
 
 use database::*;
 use std::comm::*;
-use std::c_str::*;
 
 struct Cursor {
   col: i32,

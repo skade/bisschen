@@ -55,39 +55,6 @@ mod notmuch {
   }
 }
 
-mod ncurses {
-  use std::libc::{c_char, c_short, c_int, c_uint};
-
-  struct WINDOW;
-  struct SCREEN;
-
-  pub type chtype = c_uint;
-  pub type attr_t = c_int;
-  pub type NCURSES_ATTR_T = attr_t;
-
-  pub static COLOR_BLACK   : c_short = 0;
-  pub static COLOR_RED     : c_short = 1;
-  pub static COLOR_GREEN   : c_short = 2;
-  pub static COLOR_YELLOW  : c_short = 3;
-  pub static COLOR_BLUE    : c_short = 4;
-  pub static COLOR_MAGENTA : c_short = 5;
-  pub static COLOR_CYAN    : c_short = 6;
-  pub static COLOR_WHITE   : c_short = 7;
-
-  extern {
-    fn initscr() -> *WINDOW;
-    fn getch() -> c_int;
-    fn clear() -> c_int;
-    fn refresh() -> c_int;
-    fn endwin() -> c_int;
-    fn noecho() -> c_int;
-    fn printw(characters: *c_char) -> c_int;
-    fn move(x: c_int, y: c_int) -> c_int;
-    fn start_color() ->  c_int;
-    fn init_pair(pair: c_short, foreground: c_short, background: c_short) -> c_int;
-  }
-}
-
 mod termbox {
   use std::libc::c_int;
 
