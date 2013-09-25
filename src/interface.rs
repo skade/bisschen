@@ -1,4 +1,5 @@
-use c::ncurses::*;
+use c::termbox::*;
+
 use database::*;
 use std::comm::*;
 use std::c_str::*;
@@ -56,22 +57,13 @@ impl Lines for Threads {
 }
 
 impl Cursor {
-  #[fixed_stack_segment]
-  fn move_to(&self) {
-    unsafe {
-      move(self.line, self.col);
-    }
-  }
-
   fn next_line(&mut self) {
     self.line += 1;
-    self.move_to()
   }
 
   fn reset(&mut self) {
     self.line = 0;
     self.col = 0;
-    self.move_to()
   }
 }
 
@@ -89,14 +81,18 @@ impl<T: Lines> Drawable for List<T> {
 
 impl<T> KeyHandler for List<T> {
   fn handle_key(&self, key: int) {
-    printstr(key.to_str())
   }
 }
 
 #[fixed_stack_segment]
-fn printstr(str: &str) {
-  do str.with_c_str
-    |c_string| { unsafe { printw(c_string) } };
+fn print_line(line: &Line, no: uint) {
+  for (offset, ch) in line.line.char_offset_iter() {
+    let cell = tb_cell { character: ch as u32,
+                         foreground: 5,
+                         background: 3 };
+
+    unsafe { tb_put_cell(offset.to_i32(), no.to_i32(), &cell); }
+  }
 }
 
 impl<T: Lines> List<T> {
@@ -109,26 +105,26 @@ impl<T: Lines> List<T> {
   fn display_lines(&mut self) {
     let lines = self.contents.lines();
     for line in lines.iter() {
-      printstr(line.line);
+      print_line(line, self.cursor.line as uint);
       self.cursor.next_line()
     }
   }
 
-  #[fixed_stack_segment]
-  fn print_line(&self, str: &str) {
-    do str.with_c_str
-      |c_string| { unsafe { printw(c_string) } };
-  }
+  //#[fixed_stack_segment]
+  //fn print_line(&self, str: &str) {
+  //  do str.with_c_str
+  //    |c_string| { unsafe { printw(c_string) } };
+  //}
 
   #[fixed_stack_segment]
   fn clear(&mut self) {
-    unsafe { clear(); }
+    unsafe { tb_clear(); }
     self.cursor.reset()
   }
 
   #[fixed_stack_segment]
   fn refresh(&self) {
-    unsafe { refresh(); }
+    unsafe { tb_present(); }
   }
 }
 
@@ -156,7 +152,7 @@ impl<T: Drawable + KeyHandler> Interface<T> {
 
       self.view.handle_key(val);
 
-      if val == 10 {
+      if val == 0x0D {
         return;
       }
       self.view.redraw();

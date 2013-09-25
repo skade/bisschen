@@ -56,7 +56,7 @@ mod notmuch {
 }
 
 mod ncurses {
-  use std::libc::{c_char, c_int, c_uint};
+  use std::libc::{c_char, c_short, c_int, c_uint};
 
   struct WINDOW;
   struct SCREEN;
@@ -65,15 +65,80 @@ mod ncurses {
   pub type attr_t = c_int;
   pub type NCURSES_ATTR_T = attr_t;
 
+  pub static COLOR_BLACK   : c_short = 0;
+  pub static COLOR_RED     : c_short = 1;
+  pub static COLOR_GREEN   : c_short = 2;
+  pub static COLOR_YELLOW  : c_short = 3;
+  pub static COLOR_BLUE    : c_short = 4;
+  pub static COLOR_MAGENTA : c_short = 5;
+  pub static COLOR_CYAN    : c_short = 6;
+  pub static COLOR_WHITE   : c_short = 7;
+
   extern {
-    fn initscr () -> *WINDOW;
-    fn getch () -> c_int;
-    fn clear () -> c_int;
-    fn refresh () -> c_int;
-    fn endwin () -> c_int;
-    fn noecho () -> c_int;
-    fn printw (characters: *c_char) -> c_int;
-    fn move (x: c_int, y: c_int) -> c_int;
+    fn initscr() -> *WINDOW;
+    fn getch() -> c_int;
+    fn clear() -> c_int;
+    fn refresh() -> c_int;
+    fn endwin() -> c_int;
+    fn noecho() -> c_int;
+    fn printw(characters: *c_char) -> c_int;
+    fn move(x: c_int, y: c_int) -> c_int;
     fn start_color() ->  c_int;
+    fn init_pair(pair: c_short, foreground: c_short, background: c_short) -> c_int;
+  }
+}
+
+mod termbox {
+  use std::libc::c_int;
+
+  pub struct tb_cell {
+    character: u32,
+    foreground: u16,
+    background: u16,
+  }
+
+  pub struct tb_event {
+    event_type: u8,
+    modifier: u8, 
+    key: u16,
+    ch: u32,
+    w: i32,
+    h: i32,
+  }
+
+  enum event_type {
+    TB_EVENT_KEY = 1,
+    TB_EVENT_RESIZE = 2,
+  }
+
+  enum input_mode {
+    TB_INPUT_CURRENT = 0,
+    TB_INPUT_ESC = 1,
+    TB_INPUT_ALT = 2,
+  }
+
+  extern {
+    fn tb_init() -> c_int;
+    fn tb_shutdown();
+
+    fn tb_width() -> c_int;
+    fn tb_height() -> c_int;
+
+    fn tb_clear();
+    fn tb_set_clear_attributes(fg: u16, bg: u16);
+
+    fn tb_present();
+
+    fn tb_set_cursor(cx: c_int, cy: c_int);
+
+    fn tb_put_cell(x: c_int, y: c_int, cell: *tb_cell);
+    fn tb_change_cell(x: c_int, y: c_int, fg: u16, bg: u16);
+
+    fn tb_blit(x: c_int, y: c_int, w: c_int, h: c_int, cells: *tb_cell);
+
+    fn tb_select_input_mode(mode: input_mode) -> c_int;
+
+    fn tb_peek_event(event: *tb_event, timeout: c_int) -> event_type;
+    fn tb_poll_event(event: *tb_event) -> event_type;
   }
 }

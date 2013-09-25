@@ -9,5 +9,6 @@ extern mod extra;
 pub mod c;
 pub mod input;
 pub mod curses;
+pub mod termbox;
 pub mod database;
 pub mod interface;

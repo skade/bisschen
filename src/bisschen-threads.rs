@@ -2,13 +2,13 @@ extern mod bisschen;
 
 use bisschen::database::*;
 use bisschen::input::*;
-use bisschen::curses::*;
+use bisschen::termbox::*;
 use bisschen::interface::*;
 use std::comm::*;
 
 fn main() {
-  let mut curses = Curses::new();
-  curses.start_cursing();
+  let mut termbox = Termbox::new();
+  termbox.start_boxing();
 
   let (port, chan) = stream::<int>();
   let input = Input::new(chan);
