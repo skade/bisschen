@@ -2,6 +2,7 @@ all: bisschen-tags bisschen-threads
 
 bisschen-tags: interface
 	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" bisschen-tags.rs
+	
 bisschen-threads: interface
 	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" bisschen-threads.rs
 
@@ -24,4 +25,4 @@ curses: c
 	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" curses.rs
 
 demo: c database
-	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" demo.	
+	rustc -L. -L /opt/local/lib --link-args="-lnotmuch -lncurses" demo.rs

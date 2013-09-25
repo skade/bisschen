@@ -77,5 +77,6 @@ mod ncurses {
     fn noecho () -> c_int;
     fn printw (characters: *c_char) -> c_int;
     fn move (x: c_int, y: c_int) -> c_int;
+    fn start_color() ->  c_int;
   }
 }

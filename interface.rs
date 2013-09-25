@@ -18,7 +18,9 @@ struct Cursor {
 
 struct List<T> {
   contents: T,
+  // This is the curses cursor!
   cursor: Cursor,
+  selection: int
 }
 
 struct Line {
@@ -32,6 +34,10 @@ trait Lines {
 trait Drawable {
   fn draw(&mut self);
   fn redraw(&mut self);
+}
+
+trait KeyHandler {
+  fn handle_key(&self, key: int);
 }
 
 impl Lines for Tags {
@@ -89,6 +95,12 @@ impl<T: Lines> Drawable for List<T> {
   }
 }
 
+impl<T> KeyHandler for List<T> {
+  fn handle_key(&self, key: int) {
+    printstr(key.to_str())
+  }
+}
+
 #[fixed_stack_segment]
 fn printstr(str: &str) {
   do str.with_c_str
@@ -97,7 +109,9 @@ fn printstr(str: &str) {
 
 impl<T: Lines> List<T> {
   pub fn new(contents: T) -> List<T> {
-    List { contents: contents, cursor: Cursor { col: 0, line: 0 } }
+    List { contents: contents,
+           cursor: Cursor { col: 0, line: 0 },
+           selection: 0 }
   }
 
   fn display_lines(&mut self) {
@@ -133,7 +147,7 @@ struct Interface<T> {
   redraw_count: int
 }
 
-impl<T: Drawable> Interface<T> {
+impl<T: Drawable + KeyHandler> Interface<T> {
   pub fn new(view: T, port: Port<int>) -> Interface<T> {
 
     Interface { port: port,
@@ -147,6 +161,8 @@ impl<T: Drawable> Interface<T> {
     self.view.draw();
     loop {
       let val = self.port.recv();
+
+      self.view.handle_key(val);
 
       if val == 10 {
         return;

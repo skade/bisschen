@@ -19,6 +19,7 @@ impl Curses {
     self.cursing = true;
     unsafe {
       ncurses::initscr();
+      ncurses::start_color();
       ncurses::noecho();
     }
   }
