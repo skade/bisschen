@@ -1,6 +1,3 @@
-#[crate_type = "lib"];
-#[link(name = "c", vers = "0.01")];
-
 mod notmuch {
   use std::libc::{c_char,c_int,time_t};
 

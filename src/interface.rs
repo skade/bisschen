@@ -1,6 +1,3 @@
-#[crate_type = "lib"];
-#[link(name = "interface", vers = "0.01")];
-
 use c::ncurses::*;
 use database::*;
 use std::comm::*;
