@@ -1,6 +1,6 @@
 RUST ?= rust
 RUSTC ?= rustc
-RUSTFLAGS ?= -O -Z debug-info -L /opt/local/lib -L build -L build/termbox/lib --link-args="-lncurses -lnotmuch -ltermbox"
+RUSTFLAGS ?= -O -Z debug-info -L build -L build/notmuch/lib -L build/termbox/lib --link-args="-lnotmuch -ltermbox"
 VERSION=0.1-pre
 
 lib_files=\
@@ -11,7 +11,10 @@ lib_files=\
           src/termbox.rs
 
 termbox_files=\
-					build/termbox/libtermbox.a
+					build/termbox/lib/libtermbox.a
+
+notmuch_files=\
+					build/notmuch/lib/libnotmuch.dylib
 
 all: bisschen-tags bisschen-threads
 
@@ -31,6 +34,10 @@ lib: $(termbox_files) $(lib_files)
 $(termbox_files):
 	mkdir -p build/termbox
 	cd termbox && ./waf configure --prefix=/ && ./waf && ./waf install --targets=termbox_static --destdir=../build/termbox
+
+$(notmuch_files):
+	mkdir -p build/notmuch
+	cd notmuch && PKG_CONFIG_PATH=/opt/local/lib/pkgconfig/ ./configure --prefix=/Users/skade/Code/rust/notmuch/build/notmuch --without-emacs --without-bash-completion --without-zsh-completion && make && make install
 
 clean:
 	git clean -f -d -X

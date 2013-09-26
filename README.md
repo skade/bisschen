@@ -1,6 +1,6 @@
 # bisschen
 
-`bisschen` is a ncurses client for notmuch. No, actually, it is my project to learn Rust (and a bit of C and curses) on.
+`bisschen` is a terminal client for notmuch. No, actually, it is my project to learn Rust (and a bit of C and termbox) on.
 
 It's in no usable state, but it compiles and runs on my machine. In the near future, it will probably compile on your machine.
 
