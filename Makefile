@@ -27,7 +27,7 @@ bisschen-tags: lib
 bisschen-threads: lib
 	$(RUSTC) $(RUSTFLAGS) src/bisschen-threads.rs --out-dir=build
 
-lib: $(termbox_files) $(lib_files)
+lib: $(notmuch_files) $(termbox_files) $(lib_files)
 	mkdir -p build/
 	$(RUSTC) $(RUSTFLAGS) src/lib.rs --out-dir=build
 
@@ -37,7 +37,7 @@ $(termbox_files):
 
 $(notmuch_files):
 	mkdir -p build/notmuch
-	cd notmuch && PKG_CONFIG_PATH=/opt/local/lib/pkgconfig/ ./configure --prefix=/Users/skade/Code/rust/notmuch/build/notmuch --without-emacs --without-bash-completion --without-zsh-completion && make && make install
+	cd notmuch && ./configure --prefix=$(CURDIR)/build/notmuch --without-emacs --without-bash-completion --without-zsh-completion && make && make install
 
 clean:
 	git clean -f -d -X
