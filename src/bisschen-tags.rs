@@ -13,7 +13,7 @@ fn main() {
   let (port, chan) = stream::<Either<KeyPress, Resize>>();
   let input = Input::new(chan);
 
-  let database = Database::open("/Users/skade/Mail");
+  let database = Database::open(None);
   let tags = database.tags();
   let list = List::new(tags);
   let mut interface: Interface<List<Tags>> = Interface::new(list, port);

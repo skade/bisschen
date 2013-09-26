@@ -1,5 +1,7 @@
 use std::ptr;
 use std::c_str::*;
+use std::run::*;
+use std::str::*;
 use c::notmuch::*;
 use extra::time::*;
 
@@ -276,14 +278,26 @@ impl Query {
   }
 }
 
+fn get_database_path_from_cfg() -> ~str {
+  let mut pr = Process::new("notmuch", [~"config", ~"get", ~"database.path"], ProcessOptions::new());
+  let output = pr.finish_with_output();
+
+  let utf8string = from_utf8(output.output);
+  utf8string.trim().to_owned()
+}
+
 impl Database {
   pub fn new(database: *notmuch_database_t) -> Database {
     Database { database: database }
   }
 
   #[fixed_stack_segment]
-  pub fn open(path: &str) -> Database {
-    do path.with_c_str |c_string| {
+  pub fn open(path: Option<~str>) -> Database {
+    let database_path = match path {
+      Some(str) => { str },
+      None => { get_database_path_from_cfg() }
+    };
+    do database_path.with_c_str |c_string| {
       unsafe {
         let database: *notmuch_database_t = ptr::null();
         notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, ptr::to_unsafe_ptr(&database));
