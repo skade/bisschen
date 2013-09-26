@@ -10,7 +10,7 @@ fn main() {
   let mut termbox = Termbox::new();
   termbox.start_boxing();
 
-  let (port, chan) = stream::<int>();
+  let (port, chan) = stream::<Either<KeyPress, Resize>>();
   let input = Input::new(chan);
 
   let database = Database::open("/Users/skade/Mail");

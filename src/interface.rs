@@ -1,4 +1,5 @@
 use c::termbox::*;
+use termbox::*;
 
 use database::*;
 use std::comm::*;
@@ -28,8 +29,8 @@ trait Drawable {
   fn redraw(&mut self);
 }
 
-trait KeyHandler {
-  fn handle_key(&self, key: int);
+trait EventHandler {
+  fn handle_event(&self, event: Either<KeyPress, Resize>);
 }
 
 impl Lines for Tags {
@@ -78,8 +79,8 @@ impl<T: Lines> Drawable for List<T> {
   }
 }
 
-impl<T> KeyHandler for List<T> {
-  fn handle_key(&self, key: int) {
+impl<T> EventHandler for List<T> {
+  fn handle_event(&self, event: Either<KeyPress, Resize>) {
   }
 }
 
@@ -129,14 +130,14 @@ impl<T: Lines> List<T> {
 }
 
 struct Interface<T> {
-  port: Port<int>,
+  port: Port<Either<KeyPress,Resize>>,
   view: T,
   active: bool,
   redraw_count: int
 }
 
-impl<T: Drawable + KeyHandler> Interface<T> {
-  pub fn new(view: T, port: Port<int>) -> Interface<T> {
+impl<T: Drawable + EventHandler> Interface<T> {
+  pub fn new(view: T, port: Port<Either<KeyPress,Resize>>) -> Interface<T> {
 
     Interface { port: port,
                 view: view,
@@ -148,13 +149,19 @@ impl<T: Drawable + KeyHandler> Interface<T> {
   pub fn run(&mut self) {
     self.view.draw();
     loop {
-      let val = self.port.recv();
+      let event = self.port.recv();
 
-      self.view.handle_key(val);
+      self.view.handle_event(event);
 
-      if val == 0x0D {
-        return;
+      match event {
+        Left(kp) => {
+          if kp.key == 0x0D {
+            return;
+          }
+        },
+        Right(resize) => { },
       }
+
       self.view.redraw();
     }
   }
