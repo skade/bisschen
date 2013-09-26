@@ -66,14 +66,14 @@ mod termbox {
 
   pub struct tb_event {
     event_type: u8,
-    modifier: u8, 
+    modifier: u8,
     key: u16,
     ch: u32,
     w: i32,
     h: i32,
   }
 
-  enum event_type {
+  pub enum event_type {
     TB_EVENT_KEY = 1,
     TB_EVENT_RESIZE = 2,
   }

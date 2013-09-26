@@ -12,7 +12,7 @@ struct List<T> {
   contents: T,
   // This is the curses cursor!
   cursor: Cursor,
-  selection: int
+  selection: uint
 }
 
 struct Line {
@@ -83,17 +83,6 @@ impl<T> KeyHandler for List<T> {
   }
 }
 
-#[fixed_stack_segment]
-fn print_line(line: &Line, no: uint) {
-  for (offset, ch) in line.line.char_offset_iter() {
-    let cell = tb_cell { character: ch as u32,
-                         foreground: 5,
-                         background: 3 };
-
-    unsafe { tb_put_cell(offset.to_i32(), no.to_i32(), &cell); }
-  }
-}
-
 impl<T: Lines> List<T> {
   pub fn new(contents: T) -> List<T> {
     List { contents: contents,
@@ -104,16 +93,28 @@ impl<T: Lines> List<T> {
   fn display_lines(&mut self) {
     let lines = self.contents.lines();
     for line in lines.iter() {
-      print_line(line, self.cursor.line as uint);
+      self.print_line(line, self.cursor.line as uint);
       self.cursor.next_line()
     }
   }
 
-  //#[fixed_stack_segment]
-  //fn print_line(&self, str: &str) {
-  //  do str.with_c_str
-  //    |c_string| { unsafe { printw(c_string) } };
-  //}
+  #[fixed_stack_segment]
+  fn print_line(&mut self, line: &Line, no: uint) {
+    for (offset, ch) in line.line.char_offset_iter() {
+      let cell;
+      if self.selection == no {
+        cell = tb_cell { character: ch as u32,
+                             foreground: 5,
+                             background: 3 };
+      } else {
+         cell = tb_cell { character: ch as u32,
+                             foreground: 4,
+                             background: 8 };
+      }
+
+      unsafe { tb_put_cell(offset.to_i32(), no.to_i32(), &cell); }
+    }
+  }
 
   #[fixed_stack_segment]
   fn clear(&mut self) {

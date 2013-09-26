@@ -1,4 +1,4 @@
-use c::termbox::*;
+use termbox::*;
 
 struct Input {
   channel: Chan<int>,
@@ -9,28 +9,24 @@ impl Input {
     Input { channel: channel }
   }
 
-  #[fixed_stack_segment]
   pub fn run(&self) {
     loop {
-      unsafe {
-        let event = tb_event { event_type: 0,
-                               modifier: 0,
-                               key: 0,
-                               ch: 0,
-                               w: 0,
-                               h: 0 };
-        tb_poll_event(&event);
+      let event = poll_event();
+      match event {
+        Left(kp) => {
+          self.handle_key(kp);
 
-        self.handle_key(event.key.to_int());
-
-        if event.key == 0x0D {
-          return;
-        }
+          if kp.key == 0x0D {
+            return;
+          }
+        },
+        Right(resize) => { },
       }
+
     }
   }
 
-  fn handle_key(&self, key: int) {
-    self.channel.send(key);
+  fn handle_key(&self, event: KeyPress) {
+    self.channel.send(event.key.to_int());
   }
 }
