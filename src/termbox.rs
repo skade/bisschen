@@ -4,7 +4,6 @@ struct Termbox {
   on: bool,
 }
 
-
 pub struct KeyPress {
   modifier: u8,
   key: u16,

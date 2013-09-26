@@ -16,6 +16,11 @@ struct List<T> {
   selection: uint
 }
 
+struct LazyLines<T> {
+  iter: ~Iterator<Line>,
+  lines: ~[Line]
+}
+
 struct Line {
   line: ~str,
 }
@@ -81,6 +86,7 @@ impl<T: Lines> Drawable for List<T> {
 
 impl<T> EventHandler for List<T> {
   fn handle_event(&self, event: Either<KeyPress, Resize>) {
+
   }
 }
 

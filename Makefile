@@ -8,7 +8,8 @@ lib_files=\
 		      src/input.rs \
 		      src/database.rs \
 		      src/interface.rs \
-          src/termbox.rs
+		      src/caching_iterator.rs \
+		      src/termbox.rs
 
 termbox_files=\
 					build/termbox/lib/libtermbox.a
@@ -38,6 +39,10 @@ $(termbox_files):
 $(notmuch_files):
 	mkdir -p build/notmuch
 	cd notmuch && ./configure --prefix=$(CURDIR)/build/notmuch --without-emacs --without-bash-completion --without-zsh-completion && make && make install
+
+iterator-test:
+	$(RUSTC) $(RUSTFLAGS) src/caching_iterator.rs --test --out-dir=build
+	build/caching_iterator
 
 clean:
 	git clean -f -d -X

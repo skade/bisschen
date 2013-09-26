@@ -84,6 +84,14 @@ mod termbox {
     TB_INPUT_ALT = 2,
   }
 
+  pub enum keys {
+    TB_KEY_CTRL_I = 0x09,
+    TB_KEY_CTRL_J = 0x0A,
+    TB_KEY_CTRL_K = 0x0B,
+    TB_KEY_CTRL_L = 0x0C,
+    TB_KEY_ENTER  = 0x0D,
+  }
+
   extern {
     fn tb_init() -> c_int;
     fn tb_shutdown();
