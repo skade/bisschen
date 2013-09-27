@@ -13,3 +13,4 @@ pub mod interface;
 pub mod threads;
 pub mod tags;
 pub mod messages;
+pub mod query;

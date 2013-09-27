@@ -4,50 +4,10 @@ use std::run::*;
 use std::str::*;
 use c::notmuch::*;
 use tags::*;
-use threads::*;
-
-pub struct Query {
-  priv query: *notmuch_query_t,
-  offset: Option<int>,
-  limit: Option<int>,
-}
+use query::*;
 
 pub struct Database {
   priv database: *notmuch_database_t,
-}
-
-impl Query {
-  #[fixed_stack_segment]
-  pub fn new(database: *notmuch_database_t, query: &str, limit: Option<int>, offset: Option<int>) -> Query {
-    unsafe {
-      do query.with_c_str |c_string| {
-        let query_obj = notmuch_query_create(database, c_string);
-        Query { query: query_obj, limit: limit, offset: offset }
-      }
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn message_count(&self) -> int {
-    unsafe {
-      notmuch_query_count_messages(self.query).to_int()
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn thread_count(&self) -> int {
-    unsafe {
-      notmuch_query_count_threads(self.query).to_int()
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn threads(self) -> Threads {
-    unsafe {
-      let threads = notmuch_query_search_threads(self.query);
-      Threads::new(threads)
-    }
-  }
 }
 
 fn get_database_path_from_cfg() -> ~str {
@@ -86,8 +46,8 @@ impl Database {
     }
   }
 
-  pub fn query(&self, query: &str, offset: Option<int>, limit: Option<int>) -> Query {
-    Query::new(self.database, query, offset, limit)
+  pub fn query(&self, query: &str) -> Query {
+    Query::new(self.database, query)
   }
 }
 
@@ -100,58 +60,3 @@ impl Drop for Database {
     }
   }
 }
-
-//#[test]
-//fn print_tags() {
-//  let database = Database::open("/Users/skade/Mail");
-//  for tag in database.tags() {
-//    match tag.as_str() {
-//      Some(str) => { println(str) },
-//      None => { }
-//    }
-//  }
-//}
-//
-//#[test]
-//fn print_threads() {
-//  let database = Database::open("/Users/skade/Mail");
-//  let mut threads = database.query("*", Some(20), Some(0)).threads();
-//  for thread in threads {
-//    println(thread.message_count().to_str());
-//    let subject = thread.subject();
-//    match subject.as_str() {
-//      Some(str) => { println(str) },
-//      None => { }
-//    }
-//    let authors = thread.authors();
-//    match authors.as_str() {
-//      Some(str) => { println(str) },
-//      None => { }
-//    }
-//    let oldest_date = thread.oldest_message_date();
-//    let local = at(oldest_date);
-//    println(local.strftime("%F"));
-//    for tag in thread.tags() {
-//      match tag.as_str() {
-//        Some(str) => { println(str) },
-//        None => { }
-//      }
-//    }
-//  }
-//}
-//
-//#[test]
-//fn print_message_count() {
-//  let database = Database::open("/Users/skade/Mail");
-//  let query = database.query("*", None, None);
-//  let count = query.message_count();
-//  println(count.to_str());
-//}
-//
-//#[test]
-//fn print_thread_count() {
-//  let database = Database::open("/Users/skade/Mail");
-//  let query = database.query("*", None, None);
-//  let count = query.thread_count();
-//  println(count.to_str());
-//}

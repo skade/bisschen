@@ -28,6 +28,7 @@ mod notmuch {
     fn notmuch_query_count_messages(query: *notmuch_query_t) -> c_int;
     fn notmuch_query_count_threads(query: *notmuch_query_t) -> c_int;
     fn notmuch_query_search_threads(query: *notmuch_query_t) -> *notmuch_threads_t;
+    fn notmuch_query_search_messages(query: *notmuch_query_t) -> *notmuch_messages_t;
     fn notmuch_threads_get(threads: *notmuch_threads_t) -> *notmuch_thread_t;
     fn notmuch_threads_valid(threads: *notmuch_threads_t) -> c_int;
     fn notmuch_threads_move_to_next(threads: *notmuch_threads_t);
