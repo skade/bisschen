@@ -10,4 +10,6 @@ pub mod input;
 pub mod termbox;
 pub mod database;
 pub mod interface;
+pub mod threads;
 pub mod tags;
+pub mod messages;

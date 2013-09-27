@@ -3,8 +3,8 @@ use std::c_str::*;
 use std::run::*;
 use std::str::*;
 use c::notmuch::*;
-use extra::time::*;
 use tags::*;
+use threads::*;
 
 pub struct Query {
   priv query: *notmuch_query_t,
@@ -12,97 +12,8 @@ pub struct Query {
   limit: Option<int>,
 }
 
-pub struct Messages {
-  priv messages: *notmuch_messages_t,
-}
-
-pub struct Message {
-  priv message: *notmuch_message_t,
-}
-
 pub struct Database {
   priv database: *notmuch_database_t,
-}
-
-impl Messages {
-  pub fn new(messages: *notmuch_messages_t) -> Messages {
-    Messages { messages: messages }
-  }
-}
-
-impl Iterator<Message> for Messages {
-  #[fixed_stack_segment]
-  fn next(&mut self) -> Option<Message> {
-    unsafe {
-      if notmuch_messages_valid(self.messages) == 1 {
-        let message = notmuch_messages_get(self.messages);
-        notmuch_messages_move_to_next(self.messages);
-        Some(Message::new(message))
-      } else {
-        None
-      }
-    }
-  }
-}
-
-impl Message {
-  pub fn new(message: *notmuch_message_t) -> Message {
-    Message { message: message }
-  }
-
-  #[fixed_stack_segment]
-  pub fn id(&self) -> CString {
-    unsafe {
-      CString::new(notmuch_message_get_message_id(self.message), false)
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn thread_id(&self) -> CString {
-    unsafe {
-      CString::new(notmuch_message_get_thread_id(self.message), false)
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn replies(&self) -> Messages {
-    unsafe {
-      Messages::new(notmuch_message_get_replies(self.message))
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn header(&self, header: &str) -> CString {
-    unsafe {
-      do header.with_c_str
-        |c_string| { CString::new(notmuch_message_get_header(self.message, c_string), false) }
-    }
-  }
-
-  pub fn subject(&self) -> CString {
-    self.header("subject")
-  }
-
-  #[fixed_stack_segment]
-  pub fn filename(&self) -> CString {
-    unsafe {
-      CString::new(notmuch_message_get_filename(self.message),false)
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn date(&self) -> Timespec {
-    unsafe {
-      Timespec::new(notmuch_message_get_date(self.message), 0)
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn tags(&self) -> Tags {
-    unsafe {
-      Tags::new(notmuch_message_get_tags(self.message))
-    }
-  }
 }
 
 impl Query {
@@ -134,7 +45,7 @@ impl Query {
   pub fn threads(self) -> Threads {
     unsafe {
       let threads = notmuch_query_search_threads(self.query);
-      Threads::new(threads, self)
+      Threads::new(threads)
     }
   }
 }
@@ -190,57 +101,57 @@ impl Drop for Database {
   }
 }
 
-#[test]
-fn print_tags() {
-  let database = Database::open("/Users/skade/Mail");
-  for tag in database.tags() {
-    match tag.as_str() {
-      Some(str) => { println(str) },
-      None => { }
-    }
-  }
-}
-
-#[test]
-fn print_threads() {
-  let database = Database::open("/Users/skade/Mail");
-  let mut threads = database.query("*", Some(20), Some(0)).threads();
-  for thread in threads {
-    println(thread.message_count().to_str());
-    let subject = thread.subject();
-    match subject.as_str() {
-      Some(str) => { println(str) },
-      None => { }
-    }
-    let authors = thread.authors();
-    match authors.as_str() {
-      Some(str) => { println(str) },
-      None => { }
-    }
-    let oldest_date = thread.oldest_message_date();
-    let local = at(oldest_date);
-    println(local.strftime("%F"));
-    for tag in thread.tags() {
-      match tag.as_str() {
-        Some(str) => { println(str) },
-        None => { }
-      }
-    }
-  }
-}
-
-#[test]
-fn print_message_count() {
-  let database = Database::open("/Users/skade/Mail");
-  let query = database.query("*", None, None);
-  let count = query.message_count();
-  println(count.to_str());
-}
-
-#[test]
-fn print_thread_count() {
-  let database = Database::open("/Users/skade/Mail");
-  let query = database.query("*", None, None);
-  let count = query.thread_count();
-  println(count.to_str());
-}
+//#[test]
+//fn print_tags() {
+//  let database = Database::open("/Users/skade/Mail");
+//  for tag in database.tags() {
+//    match tag.as_str() {
+//      Some(str) => { println(str) },
+//      None => { }
+//    }
+//  }
+//}
+//
+//#[test]
+//fn print_threads() {
+//  let database = Database::open("/Users/skade/Mail");
+//  let mut threads = database.query("*", Some(20), Some(0)).threads();
+//  for thread in threads {
+//    println(thread.message_count().to_str());
+//    let subject = thread.subject();
+//    match subject.as_str() {
+//      Some(str) => { println(str) },
+//      None => { }
+//    }
+//    let authors = thread.authors();
+//    match authors.as_str() {
+//      Some(str) => { println(str) },
+//      None => { }
+//    }
+//    let oldest_date = thread.oldest_message_date();
+//    let local = at(oldest_date);
+//    println(local.strftime("%F"));
+//    for tag in thread.tags() {
+//      match tag.as_str() {
+//        Some(str) => { println(str) },
+//        None => { }
+//      }
+//    }
+//  }
+//}
+//
+//#[test]
+//fn print_message_count() {
+//  let database = Database::open("/Users/skade/Mail");
+//  let query = database.query("*", None, None);
+//  let count = query.message_count();
+//  println(count.to_str());
+//}
+//
+//#[test]
+//fn print_thread_count() {
+//  let database = Database::open("/Users/skade/Mail");
+//  let query = database.query("*", None, None);
+//  let count = query.thread_count();
+//  println(count.to_str());
+//}

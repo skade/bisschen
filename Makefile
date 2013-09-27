@@ -40,17 +40,9 @@ $(notmuch_files):
 	mkdir -p build/notmuch
 	cd notmuch && ./configure --prefix=$(CURDIR)/build/notmuch --without-emacs --without-bash-completion --without-zsh-completion && make && make install
 
-iterator-test:
-	$(RUSTC) $(RUSTFLAGS) src/caching_iterator.rs --test --out-dir=build
-	build/caching_iterator
-
-tags-test:
-	$(RUSTC) $(RUSTFLAGS) src/tags.rs --test --out-dir=build
-	build/tags
-
-threads-test:
-	$(RUSTC) $(RUSTFLAGS) src/threads.rs --test --out-dir=build
-	build/threads
+test:
+	$(RUSTC) $(RUSTFLAGS) src/lib.rs --test --out-dir=build
+	build/lib
 
 clean:
 	git clean -f -d -X

@@ -1,8 +1,7 @@
 use c::termbox::*;
 use termbox::*;
-
-use database::*;
 use tags::*;
+use threads::*;
 use std::comm::*;
 
 struct Cursor {
@@ -44,7 +43,8 @@ impl Lines for Tags {
 
 impl Lines for Threads {
   fn lines(&mut self) -> ~[Line] {
-    self.map(|x| x.subject())
+    self.iter()
+        .map(|x| x.subject())
         .map(|c_string| {
           match c_string.as_str() {
             Some(str) => { Line { line: str.to_owned() } }

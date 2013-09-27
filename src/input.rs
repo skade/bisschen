@@ -1,5 +1,4 @@
 use termbox::*;
-use c::termbox::*;
 
 pub struct Input {
   channel: Chan<Either<KeyPress, Resize>>,
