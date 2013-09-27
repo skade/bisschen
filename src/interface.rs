@@ -13,7 +13,8 @@ pub struct List<T> {
   contents: T,
   // This is the curses cursor!
   cursor: Cursor,
-  selection: uint
+  selection: uint,
+  offset: i32
 }
 
 struct Line {
@@ -21,7 +22,7 @@ struct Line {
 }
 
 trait Lines {
-  fn lines(&mut self) -> ~[Line];
+  fn lines(&mut self, offset: uint, limit: uint) -> ~[Line];
 }
 
 trait Drawable {
@@ -30,20 +31,33 @@ trait Drawable {
 }
 
 trait EventHandler {
-  fn handle_event(&self, event: Either<KeyPress, Resize>);
+  fn handle_event(&mut self, event: Either<KeyPress, Resize>) {
+    match event {
+      Left(k) => { self.handle_keypress(k) },
+      Right(r) => { self.handle_resize(r) },
+    }
+  }
+
+  fn handle_keypress(&mut self, key_press: KeyPress);
+  fn handle_resize(&mut self, key_press: Resize);
 }
 
 impl Lines for Tags {
-  fn lines(&mut self) -> ~[Line] {
-    self.iter().map(|x| {
-      Line { line: x.str.to_owned() }
-    }).to_owned_vec()
+  fn lines(&mut self, offset: uint, limit: uint) -> ~[Line] {
+    self.iter()
+        .skip(offset)
+        .take(limit)
+        .map(|x| {
+          Line { line: x.str.to_owned() }
+        }).to_owned_vec()
   }
 }
 
 impl Lines for Threads {
-  fn lines(&mut self) -> ~[Line] {
+  fn lines(&mut self, offset: uint, limit: uint) -> ~[Line] {
     self.iter()
+        .skip(offset)
+        .take(limit)
         .map(|x| x.subject())
         .map(|c_string| {
           match c_string.as_str() {
@@ -77,21 +91,38 @@ impl<T: Lines> Drawable for List<T> {
   }
 }
 
-impl<T> EventHandler for List<T> {
-  fn handle_event(&self, event: Either<KeyPress, Resize>) {
-
+impl<T: Lines> EventHandler for List<T> {
+  fn handle_keypress(&mut self, key_press: KeyPress) {
+    match key_press.key {
+      0x0A => { self.move_down(); },
+      0x0B => { self.move_up(); },
+      _ => {}
+    }
   }
+
+  fn handle_resize(&mut self, _: Resize) { }
+}
+
+#[fixed_stack_segment]
+fn height() -> i32 {
+  unsafe { tb_height() }
+}
+
+#[fixed_stack_segment]
+fn width() -> i32 {
+  unsafe { tb_width() }
 }
 
 impl<T: Lines> List<T> {
   pub fn new(contents: T) -> List<T> {
     List { contents: contents,
            cursor: Cursor { col: 0, line: 0 },
-           selection: 0 }
+           selection: 0,
+           offset: 0 }
   }
 
   fn display_lines(&mut self) {
-    let lines = self.contents.lines();
+    let lines = self.contents.lines(self.offset as uint, height() as uint);
     for line in lines.iter() {
       self.print_line(line, self.cursor.line as uint);
       self.cursor.next_line()
@@ -125,6 +156,24 @@ impl<T: Lines> List<T> {
   #[fixed_stack_segment]
   fn refresh(&self) {
     unsafe { tb_present(); }
+  }
+
+  fn move_down(&mut self) {
+    if self.selection < (height() - 1) as uint {
+      self.selection += 1;
+    } else {
+      self.offset += 1;
+    }
+  }
+
+  fn move_up(&mut self) {
+    if self.selection > 0 {
+      self.selection -= 1;
+    } else {
+      if !(self.offset == 0) {
+        self.offset -= 1;
+      }
+    }
   }
 }
 

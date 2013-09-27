@@ -1,6 +1,8 @@
 extern mod extra;
 
 use std::c_str::*;
+use std::uint::*;
+
 use c::notmuch::*;
 use extra::time::*;
 use tags::*;
@@ -54,10 +56,10 @@ impl Messages {
     }
   }
 
-  fn get_next_message(&mut self, index: uint) -> Option<Message> {
+  fn get_next_message(&mut self) -> Option<Message> {
     if self.has_more() {
       self.advance_message_pointer();
-      self.idx(index)
+      self.idx(self.loaded.len())
     } else {
       None
     }
@@ -68,7 +70,7 @@ impl<'self> Iterator<Message> for MessagesIterator<'self> {
   fn next(&mut self) -> Option<Message> {
     let idx = self.index;
     self.index += 1;
-    self.messages.idx(idx).or(self.messages.get_next_message(idx))
+    self.messages.idx(idx).or(self.messages.get_next_message())
   }
 }
 

@@ -4,6 +4,8 @@ use bisschen::database::*;
 use bisschen::input::*;
 use bisschen::termbox::*;
 use bisschen::interface::*;
+use bisschen::threads::*;
+
 use std::comm::*;
 
 fn main() {
@@ -14,7 +16,7 @@ fn main() {
   let input = Input::new(chan);
 
   let database = Database::open(None);
-  let threads = database.query("*", Some(20), Some(0)).threads();
+  let threads = database.query("*").threads();
   let list = List::new(threads);
   let mut interface: Interface<List<Threads>> = Interface::new(list, port);
 
