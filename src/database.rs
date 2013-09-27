@@ -12,16 +12,6 @@ pub struct Query {
   limit: Option<int>,
 }
 
-pub struct Thread {
-  priv thread: *notmuch_thread_t,
-}
-
-pub struct Threads {
-  priv threads: *notmuch_threads_t,
-  query: Query,
-  current: int
-}
-
 pub struct Messages {
   priv messages: *notmuch_messages_t,
 }
@@ -32,36 +22,6 @@ pub struct Message {
 
 pub struct Database {
   priv database: *notmuch_database_t,
-}
-
-impl Threads {
-  pub fn new(threads: *notmuch_threads_t, query: Query) -> Threads {
-    Threads { threads: threads, query: query, current: 0 }
-  }
-}
-
-impl Iterator<Thread> for Threads {
-  #[fixed_stack_segment]
-  fn next(&mut self) -> Option<Thread> {
-    unsafe {
-      if notmuch_threads_valid(self.threads) == 1 {
-        let below_limit = match self.query.limit {
-          Some(number) => { (self.current + 1) < number }
-          None => { true }
-        };
-        if below_limit {
-          let thread = notmuch_threads_get(self.threads);
-          notmuch_threads_move_to_next(self.threads);
-          self.current += 1;
-          Some(Thread::new(thread))
-        } else {
-          None
-        }
-      } else {
-        None
-      }
-    }
-  }
 }
 
 impl Messages {
@@ -141,81 +101,6 @@ impl Message {
   pub fn tags(&self) -> Tags {
     unsafe {
       Tags::new(notmuch_message_get_tags(self.message))
-    }
-  }
-}
-
-impl Thread {
-  pub fn new(thread: *notmuch_thread_t) -> Thread {
-    Thread { thread: thread }
-  }
-
-  #[fixed_stack_segment]
-  pub fn id(&self) -> CString {
-    unsafe {
-      CString::new(notmuch_thread_get_thread_id(self.thread), false)
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn message_count(&self) -> int {
-    unsafe {
-      notmuch_thread_get_total_messages(self.thread).to_int()
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn subject(&self) -> CString {
-    unsafe {
-      CString::new(notmuch_thread_get_subject(self.thread), false)
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn authors(&self) -> CString {
-    unsafe {
-      CString::new(notmuch_thread_get_authors(self.thread), false)
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn oldest_message_date(&self) -> Timespec {
-    unsafe {
-      Timespec::new(notmuch_thread_get_oldest_date(self.thread), 0)
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn newest_message_date(&self) -> Timespec {
-    unsafe {
-      Timespec::new(notmuch_thread_get_newest_date(self.thread), 0)
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn tags(&self) -> Tags {
-    unsafe {
-      Tags::new(notmuch_thread_get_tags(self.thread))
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn match_messages_count(&self) -> int {
-    unsafe {
-      notmuch_thread_get_matched_messages(self.thread).to_int()
-    }
-  }
-
-  #[fixed_stack_segment]
-  pub fn messages(&self) -> Messages {
-    unsafe {
-      Messages::new(notmuch_thread_get_messages(self.thread))
-    }
-  }
-  #[fixed_stack_segment]
-  pub fn toplevel_messages(&self) -> Messages {
-    unsafe {
-      Messages::new(notmuch_thread_get_toplevel_messages(self.thread))
     }
   }
 }

@@ -48,5 +48,9 @@ tags-test:
 	$(RUSTC) $(RUSTFLAGS) src/tags.rs --test --out-dir=build
 	build/tags
 
+threads-test:
+	$(RUSTC) $(RUSTFLAGS) src/threads.rs --test --out-dir=build
+	build/threads
+
 clean:
 	git clean -f -d -X

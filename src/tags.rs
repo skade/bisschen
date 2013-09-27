@@ -124,16 +124,19 @@ mod test {
   fn iterate_twice() {
     let mut tags = load_tags_from_database();
 
-    assert_eq!(tags.idx(2), None);
+    assert_eq!(tags.idx(1), None);
 
-    for tag in tags.iter() {
+    for tag in tags.iter().take(2) {
+      id(tag);
+    }
+
+    assert!(!tags.idx(1).is_none());
+    assert!(tags.idx(2).is_none());
+
+    for tag in tags.iter().take(3) {
       id(tag);
     }
 
     assert!(!tags.idx(2).is_none());
-
-    for tag in tags.iter() {
-      id(tag);
-    }
   }
 }
