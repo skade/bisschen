@@ -1,7 +1,7 @@
 use termbox::*;
 use c::termbox::*;
 
-struct Input {
+pub struct Input {
   channel: Chan<Either<KeyPress, Resize>>,
 }
 

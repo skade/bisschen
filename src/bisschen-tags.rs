@@ -4,6 +4,8 @@ use bisschen::database::*;
 use bisschen::input::*;
 use bisschen::termbox::*;
 use bisschen::interface::*;
+use bisschen::tags::*;
+
 use std::comm::*;
 
 fn main() {

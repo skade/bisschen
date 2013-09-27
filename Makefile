@@ -44,5 +44,9 @@ iterator-test:
 	$(RUSTC) $(RUSTFLAGS) src/caching_iterator.rs --test --out-dir=build
 	build/caching_iterator
 
+tags-test:
+	$(RUSTC) $(RUSTFLAGS) src/tags.rs --test --out-dir=build
+	build/tags
+
 clean:
 	git clean -f -d -X

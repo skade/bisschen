@@ -66,15 +66,3 @@ fn test_returns_highest_index() {
   let slice = cache.slice(0,highest_index);
   assert_eq!(slice.len(), cache.items.len())
 }
-
-//#[test]
-//fn test_returns_value_at_index() {
-//  let items = &[1, 2, 3];
-//  let mut cache = LazyCache::new(items.iter());
-//
-//  let mut item = cache.idx(1);
-//  assert!(item.is_none());
-//  cache.ensure(2);
-//  let item = cache.idx(1);
-//  assert!(!item.is_none());
-//}

@@ -4,10 +4,7 @@ use std::run::*;
 use std::str::*;
 use c::notmuch::*;
 use extra::time::*;
-
-pub struct Tags {
-  priv tags: *notmuch_tags_t,
-}
+use tags::*;
 
 pub struct Query {
   priv query: *notmuch_query_t,
@@ -35,27 +32,6 @@ pub struct Message {
 
 pub struct Database {
   priv database: *notmuch_database_t,
-}
-
-impl Tags {
-  pub fn new(tags: *notmuch_tags_t) -> Tags {
-    Tags { tags: tags }
-  }
-}
-
-impl Iterator<CString> for Tags {
-  #[fixed_stack_segment]
-  fn next(&mut self) -> Option<CString> {
-    unsafe {
-      if notmuch_tags_valid(self.tags) == 1 {
-        let tag = notmuch_tags_get(self.tags);
-        notmuch_tags_move_to_next(self.tags);
-        Some(CString::new(tag, false))
-      } else {
-        None
-      }
-    }
-  }
 }
 
 impl Threads {

@@ -2,6 +2,7 @@ use c::termbox::*;
 use termbox::*;
 
 use database::*;
+use tags::*;
 use std::comm::*;
 
 struct Cursor {
@@ -9,16 +10,11 @@ struct Cursor {
   line: i32
 }
 
-struct List<T> {
+pub struct List<T> {
   contents: T,
   // This is the curses cursor!
   cursor: Cursor,
   selection: uint
-}
-
-struct LazyLines<T> {
-  iter: ~Iterator<Line>,
-  lines: ~[Line]
 }
 
 struct Line {
@@ -26,7 +22,7 @@ struct Line {
 }
 
 trait Lines {
-  fn lines(&self) -> ~[Line];
+  fn lines(&mut self) -> ~[Line];
 }
 
 trait Drawable {
@@ -39,18 +35,15 @@ trait EventHandler {
 }
 
 impl Lines for Tags {
-  fn lines(&self) -> ~[Line] {
-    self.map(|c_string| {
-      match c_string.as_str() {
-        Some(str) => { Line { line: str.to_owned() } }
-        None => { fail!("Tags should never yield illegal strings!") }
-      }
+  fn lines(&mut self) -> ~[Line] {
+    self.iter().map(|x| {
+      Line { line: x.str.to_owned() }
     }).to_owned_vec()
   }
 }
 
 impl Lines for Threads {
-  fn lines(&self) -> ~[Line] {
+  fn lines(&mut self) -> ~[Line] {
     self.map(|x| x.subject())
         .map(|c_string| {
           match c_string.as_str() {
@@ -135,7 +128,7 @@ impl<T: Lines> List<T> {
   }
 }
 
-struct Interface<T> {
+pub struct Interface<T> {
   port: Port<Either<KeyPress,Resize>>,
   view: T,
   active: bool,

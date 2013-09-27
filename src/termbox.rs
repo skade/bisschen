@@ -1,6 +1,6 @@
 use c::termbox::*;
 
-struct Termbox {
+pub struct Termbox {
   on: bool,
 }
 
