@@ -1,6 +1,7 @@
 RUST ?= rust
-RUSTC ?= rustc
-RUSTFLAGS ?= -O -Z debug-info -L build -L build/notmuch/lib -L build/termbox/lib --link-args="-lnotmuch -ltermbox"
+RUSTC ?= rust build
+RUSTTEST ?= rust test
+RUSTFLAGS ?= -O -Z debug-info --out-dir build -L build -L build/notmuch/lib -L build/termbox/lib --link-args="-lnotmuch -ltermbox"
 VERSION=0.1-pre
 
 lib_files=\
@@ -19,18 +20,15 @@ notmuch_files=\
 
 all: bisschen-tags bisschen-threads
 
-demo: lib
-	$(RUSTC) $(RUSTFLAGS) src/demo.rs --out-dir=build
-
 bisschen-tags: lib
-	$(RUSTC) $(RUSTFLAGS) src/bisschen-tags.rs --out-dir=build
-	
+	$(RUSTC) $(RUSTFLAGS) src/bisschen-tags.rs
+
 bisschen-threads: lib
-	$(RUSTC) $(RUSTFLAGS) src/bisschen-threads.rs --out-dir=build
+	$(RUSTC) $(RUSTFLAGS) src/bisschen-threads.rs
 
 lib: $(notmuch_files) $(termbox_files) $(lib_files)
 	mkdir -p build/
-	$(RUSTC) $(RUSTFLAGS) src/lib.rs --out-dir=build
+	$(RUSTC) $(RUSTFLAGS) src/lib.rs
 
 $(termbox_files):
 	mkdir -p build/termbox
@@ -41,8 +39,8 @@ $(notmuch_files):
 	cd notmuch && ./configure --prefix=$(CURDIR)/build/notmuch --without-emacs --without-bash-completion --without-zsh-completion && make && make install
 
 test:
-	$(RUSTC) $(RUSTFLAGS) src/lib.rs --test --out-dir=build
-	build/lib
+	$(RUSTC) $(RUSTFLAGS) --test src/lib.rs
+	src/lib
 
 clean:
 	git clean -f -d -X

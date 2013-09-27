@@ -55,7 +55,7 @@ mod tests {
   #[test]
   fn print_message_count() {
     let database = Database::open(None);
-    let query = database.query("*");
+    let query = database.query(None);
     let count = query.message_count();
     assert!(count > 0);
   }
@@ -63,7 +63,7 @@ mod tests {
   #[test]
   fn print_thread_count() {
     let database = Database::open(None);
-    let query = database.query("*");
+    let query = database.query(None);
     let count = query.thread_count();
     assert!(count > 0);
   }
