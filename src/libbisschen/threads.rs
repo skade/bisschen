@@ -152,7 +152,7 @@ impl Thread {
 #[cfg(test)]
 mod test {
   use super::*;
-  use c:: *;
+  use cbits::notmuch::*;
   use std::ptr;
   use std::c_str::*;
   use std::run::*;

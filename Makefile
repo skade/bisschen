@@ -42,9 +42,11 @@ $(notmuch_files):
 	mkdir -p build/notmuch
 	cd notmuch && ./configure --prefix=$(CURDIR)/build/notmuch --without-emacs --without-bash-completion --without-zsh-completion && make && make install
 
-test:
-	$(RUSTC) $(RUSTFLAGS) --test src/lib.rs
-	src/lib
+test: libbisschen-test
+
+libbisschen-test:
+	$(RUSTC) $(RUSTFLAGS) --test src/libbisschen/lib.rs
+	build/lib
 
 clean:
 	git clean -f -d -X
