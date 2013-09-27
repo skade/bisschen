@@ -1,16 +1,20 @@
 extern mod bisschen;
+extern mod termbox;
 extern mod extra;
 
 use bisschen::database::*;
-use bisschen::input::*;
-use bisschen::termbox::*;
-use bisschen::interface::*;
 use bisschen::threads::*;
+use termbox::*;
+use input::*;
+use interface::*;
 
 use extra::getopts::*;
 
 use std::comm::*;
 use std::os;
+
+pub mod input;
+pub mod interface;
 
 fn parse_opts() -> Matches {
   let args = os::args();

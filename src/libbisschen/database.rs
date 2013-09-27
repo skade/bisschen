@@ -2,7 +2,7 @@ use std::ptr;
 use std::c_str::*;
 use std::run::*;
 use std::str::*;
-use c::notmuch::*;
+use cbits::notmuch::*;
 use tags::*;
 use query::*;
 

@@ -2,7 +2,7 @@ extern mod extra;
 
 use std::c_str::*;
 
-use c::notmuch::*;
+use cbits::notmuch::*;
 use extra::time::*;
 use tags::*;
 
@@ -136,7 +136,7 @@ impl Message {
 #[cfg(test)]
 mod test {
   use super::*;
-  use c::notmuch::*;
+  use c:: *;
   use std::ptr;
   use std::c_str::*;
   use std::run::*;

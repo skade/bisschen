@@ -1,4 +1,12 @@
-use c::termbox::*;
+#[crate_type = "lib"];
+#[link(name = "termbox",
+       vers = "0.1-pre",
+       url = "")];
+
+use cbits::termbox::*;
+
+pub mod cbits;
+
 
 pub struct Termbox {
   on: bool,

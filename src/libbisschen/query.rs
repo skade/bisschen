@@ -1,6 +1,6 @@
 use threads::*;
 use messages::*;
-use c::notmuch::*;
+use cbits::notmuch::*;
 
 pub struct Query {
   priv query: *notmuch_query_t,

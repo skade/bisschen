@@ -1,7 +1,12 @@
-use c::termbox::*;
+extern mod termbox;
+extern mod bisschen;
+
 use termbox::*;
-use tags::*;
-use threads::*;
+use termbox::cbits::termbox::*;
+use termbox::cbits::termbox::{tb_cell};
+
+use bisschen::tags::*;
+use bisschen::threads::*;
 use std::comm::*;
 
 struct Cursor {

@@ -20,15 +20,19 @@ notmuch_files=\
 
 all: bisschen-tags bisschen-threads
 
-bisschen-tags: lib
-	$(RUSTC) $(RUSTFLAGS) src/bisschen-tags.rs
+bisschen-tags: libbisschen libtermbox
+	$(RUSTC) $(RUSTFLAGS) src/bisschen/bisschen-tags.rs
 
-bisschen-threads: lib
-	$(RUSTC) $(RUSTFLAGS) src/bisschen-threads.rs
+bisschen-threads: libbisschen libtermbox
+	$(RUSTC) $(RUSTFLAGS) src/bisschen/bisschen-threads.rs
 
-lib: $(notmuch_files) $(termbox_files) $(lib_files)
+libbisschen: $(notmuch_files) $(termbox_files)
 	mkdir -p build/
-	$(RUSTC) $(RUSTFLAGS) src/lib.rs
+	$(RUSTC) $(RUSTFLAGS) src/libbisschen/lib.rs
+
+libtermbox: $(notmuch_files) $(termbox_files)
+	mkdir -p build/
+	$(RUSTC) $(RUSTFLAGS) src/libtermbox/lib.rs
 
 $(termbox_files):
 	mkdir -p build/termbox

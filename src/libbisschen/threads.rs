@@ -1,11 +1,11 @@
 extern mod extra;
 
-use c::notmuch::*;
+use cbits::notmuch::*;
 use std::c_str::*;
 use std::str::*;
 use messages::*;
-use extra::time::*;
 use tags::*;
+use extra::time::*;
 
 #[deriving(Clone, Eq)]
 pub struct Thread {
@@ -152,7 +152,7 @@ impl Thread {
 #[cfg(test)]
 mod test {
   use super::*;
-  use c::notmuch::*;
+  use c:: *;
   use std::ptr;
   use std::c_str::*;
   use std::run::*;

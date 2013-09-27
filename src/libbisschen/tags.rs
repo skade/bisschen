@@ -1,8 +1,6 @@
-use c::notmuch::*;
+use cbits::notmuch::*;
 use std::c_str::*;
 use std::str::*;
-
-pub mod c;
 
 #[deriving(Clone, Eq)]
 pub struct Tag {
@@ -80,7 +78,7 @@ impl<'self> Iterator<Tag> for TagsIterator<'self> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use c::notmuch::*;
+  use c:: *;
   use std::ptr;
   use std::c_str::*;
   use std::run::*;

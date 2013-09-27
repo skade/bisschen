@@ -1,12 +1,16 @@
 extern mod bisschen;
+extern mod termbox;
 
 use bisschen::database::*;
-use bisschen::input::*;
-use bisschen::termbox::*;
-use bisschen::interface::*;
 use bisschen::tags::*;
+use termbox::*;
+use input::*;
+use interface::*;
 
 use std::comm::*;
+
+pub mod input;
+pub mod interface;
 
 fn main() {
   let mut termbox = Termbox::new();
