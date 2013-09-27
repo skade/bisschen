@@ -46,8 +46,11 @@ impl Database {
     }
   }
 
-  pub fn query(&self, query: &str) -> Query {
-    Query::new(self.database, query)
+  pub fn query(&self, query: Option<~str>) -> Query {
+    match query {
+      Some(str) => { Query::new(self.database, str) },
+      None => { Query::new(self.database, "*") },
+    }
   }
 }
 

@@ -19,8 +19,7 @@ impl Input {
             return;
           }
         },
-        Right(resize) => {
-        },
+        Right(_) => { },
       }
     }
   }

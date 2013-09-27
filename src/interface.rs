@@ -207,7 +207,7 @@ impl<T: Drawable + EventHandler> Interface<T> {
             return;
           }
         },
-        Right(resize) => { },
+        Right(_) => { },
       }
 
       self.view.redraw();

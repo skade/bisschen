@@ -1,7 +1,6 @@
 extern mod extra;
 
 use std::c_str::*;
-use std::uint::*;
 
 use c::notmuch::*;
 use extra::time::*;
