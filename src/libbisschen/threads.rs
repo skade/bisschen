@@ -26,7 +26,7 @@ impl<'self> Iterator<Thread> for ThreadsIterator<'self> {
   fn next(&mut self) -> Option<Thread> {
     let idx = self.index;
     self.index += 1;
-    self.tags.idx(idx).or(self.tags.get_next_thread(idx))
+    self.tags.idx(idx).or(self.tags.get_next_thread())
   }
 }
 
@@ -64,10 +64,10 @@ impl Threads {
     }
   }
 
-  fn get_next_thread(&mut self, index: uint) -> Option<Thread> {
+  fn get_next_thread(&mut self) -> Option<Thread> {
     if self.has_more() {
       self.advance_thread_pointer();
-      self.idx(index)
+      self.idx(self.loaded.len() - 1)
     } else {
       None
     }

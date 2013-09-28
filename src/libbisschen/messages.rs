@@ -32,6 +32,7 @@ impl Messages {
 
   fn idx(&self, index: uint) -> Option<Message> {
     let option = self.loaded.iter().idx(index);
+
     match option {
       Some(item) => { Some(item.clone()) },
       None => { None }
@@ -58,7 +59,7 @@ impl Messages {
   fn get_next_message(&mut self) -> Option<Message> {
     if self.has_more() {
       self.advance_message_pointer();
-      self.idx(self.loaded.len())
+      self.idx(self.loaded.len() - 1)
     } else {
       None
     }
