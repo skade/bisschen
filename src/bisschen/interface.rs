@@ -136,14 +136,18 @@ impl<T: Lines> List<T> {
 
   #[fixed_stack_segment]
   fn print_line(&mut self, line: &Line, no: uint) {
-    for (offset, ch) in line.line.char_offset_iter() {
+    let rest = width() as uint - line.line.len();
+    let mut bytes = line.line.as_bytes().to_owned();
+    bytes.grow_fn(rest, |_| ' ' as u8);
+
+    for (offset, ch) in bytes.iter().enumerate() {
       let cell;
       if self.selection == no {
-        cell = tb_cell { character: ch as u32,
+        cell = tb_cell { character: *ch as u32,
                              foreground: 5,
                              background: 3 };
       } else {
-         cell = tb_cell { character: ch as u32,
+         cell = tb_cell { character: *ch as u32,
                              foreground: 4,
                              background: 8 };
       }
