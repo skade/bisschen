@@ -98,9 +98,9 @@ impl<T: Lines> Drawable for List<T> {
 
 impl<T: Lines> EventHandler for List<T> {
   fn handle_keypress(&mut self, key_press: KeyPress) {
-    match key_press.key {
-      0x0A => { self.move_down(); },
-      0x0B => { self.move_up(); },
+    match key_press.ch {
+      'j' => { self.move_down(); },
+      'k' => { self.move_up(); },
       _ => {}
     }
   }

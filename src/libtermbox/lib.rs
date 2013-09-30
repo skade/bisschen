@@ -4,6 +4,7 @@
        url = "")];
 
 use cbits::termbox::*;
+use std::char::*;
 
 pub mod cbits;
 
@@ -15,12 +16,13 @@ pub struct Termbox {
 pub struct KeyPress {
   modifier: u8,
   key: u16,
-  ch: u32
+  ch: char
 }
 
 impl KeyPress {
   fn new(event: tb_event) -> KeyPress {
-    KeyPress { modifier: event.modifier, key: event.key, ch: event.ch }
+    let ch = from_u32(event.ch).expect("event sent invalid key");
+    KeyPress { modifier: event.modifier, key: event.key, ch: ch }
   }
 }
 
