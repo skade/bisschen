@@ -26,6 +26,7 @@ pub fn parse_opts() -> CommandLine {
   CommandLine { name: program, matches: matches }
 }
 
+#[deriving(Clone)]
 struct CommandLine {
   name: ~str,
   matches: Matches

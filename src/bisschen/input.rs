@@ -1,30 +1,16 @@
 use termbox::*;
 
-pub struct Input {
-  channel: Chan<Either<KeyPress, Resize>>,
-}
+pub struct Input;
 
 impl Input {
-  pub fn new(channel: Chan<Either<KeyPress, Resize>>) -> Input {
-    Input { channel: channel }
-  }
-
   pub fn run(&self) {
     loop {
-      let event = poll_event();
-      self.send_event(event);
-      match event {
-        Left(kp) => {
-          if kp.key == 0x0D {
-            return;
-          }
-        },
-        Right(_) => { },
-      }
+      let event = self.poll();
+      //self.send_event(event);
     }
   }
 
-  fn send_event(&self, event: Either<KeyPress, Resize>) {
-    self.channel.send(event);
+  pub fn poll(&self) -> Either<KeyPress, Resize> {
+    poll_event()
   }
 }

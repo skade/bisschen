@@ -7,7 +7,6 @@ use termbox::cbits::termbox::{tb_cell};
 
 use bisschen::tags::*;
 use bisschen::threads::*;
-use std::comm::*;
 
 struct Cursor {
   col: i32,
@@ -187,39 +186,26 @@ impl<T: Lines> List<T> {
 }
 
 pub struct Interface<T> {
-  port: Port<Either<KeyPress,Resize>>,
   view: T,
   active: bool,
   redraw_count: int
 }
 
 impl<T: Drawable + EventHandler> Interface<T> {
-  pub fn new(view: T, port: Port<Either<KeyPress,Resize>>) -> Interface<T> {
+  pub fn new(view: T) -> Interface<T> {
 
-    Interface { port: port,
-                view: view,
+    Interface { view: view,
                 active: false,
                 redraw_count: 0 }
   }
 
-  #[fixed_stack_segment]
-  pub fn run(&mut self) {
+  pub fn init(&mut self) {
     self.view.draw();
-    loop {
-      let event = self.port.recv();
+  }
 
-      self.view.handle_event(event);
-
-      match event {
-        Left(kp) => {
-          if kp.key == 0x0D {
-            return;
-          }
-        },
-        Right(_) => { },
-      }
-
-      self.view.redraw();
-    }
+  pub fn handle_event(&mut self, event: Either<KeyPress, Resize>) {
+    self.view.draw();
+    self.view.handle_event(event);
+    self.view.redraw();
   }
 }

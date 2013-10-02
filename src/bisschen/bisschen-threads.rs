@@ -24,14 +24,20 @@ fn main() {
   let query_string = opts.query_string();
   let threads = database.query(query_string).threads();
 
-  let (port, chan) = stream::<Either<KeyPress, Resize>>();
-  let input = Input::new(chan);
-
   let list = List::new(threads);
-  let mut interface: Interface<List<Threads>> = Interface::new(list, port);
+  let mut interface: Interface<List<Threads>> = Interface::new(list);
 
-  do spawn {
-    input.run();
+  loop {
+    let event = Input.poll();
+    match event {
+      Left(kp) => {
+        if kp.key == 0x0D {
+          return;
+        }
+      },
+      Right(_) => { },
+    }
+
+    interface.handle_event(event);
   }
-  interface.run();
 }

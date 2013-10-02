@@ -20,15 +20,23 @@ fn main() {
   let mut termbox = Termbox::new();
   termbox.start_boxing();
 
-  let (port, chan) = stream::<Either<KeyPress, Resize>>();
-  let input = Input::new(chan);
-
   let database = opts.database();
   let tags = database.tags();
   let list = List::new(tags);
-  let mut interface: Interface<List<Tags>> = Interface::new(list, port);
-  do spawn {
-    input.run();
+  let mut interface: Interface<List<Tags>> = Interface::new(list);
+  interface.init();
+
+  loop {
+    let event = Input.poll();
+    match event {
+      Left(kp) => {
+        if kp.key == 0x0D {
+          return;
+        }
+      },
+      Right(_) => { },
+    }
+
+    interface.handle_event(event);
   }
-  interface.run();
 }
