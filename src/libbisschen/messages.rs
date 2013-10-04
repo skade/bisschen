@@ -30,7 +30,7 @@ impl Messages {
     MessagesIterator { messages: self, index: 0 }
   }
 
-  fn idx(&self, index: uint) -> Option<Message> {
+  pub fn idx(&self, index: uint) -> Option<Message> {
     let option = self.loaded.iter().idx(index);
 
     match option {

@@ -95,6 +95,25 @@ impl Lines for Threads {
   }
 }
 
+impl Lines for Thread {
+  fn lines(&mut self, offset: uint, limit: uint) -> ~[Line] {
+    let mut toplevel_messages = self.toplevel_messages();
+    toplevel_messages
+        .iter()
+        .map(|x| x.subject())
+        .map(|c_string| {
+          match c_string.as_str() {
+            Some(str) => { Line { line: str.to_owned() } }
+            None => { fail!("Messages should never yield illegal subjects!") }
+          }
+        }).to_owned_vec()
+  }
+
+  fn handle_selection(&mut self, line: uint) {
+
+  }
+}
+
 impl Cursor {
   fn next_line(&mut self) {
     self.line += 1;

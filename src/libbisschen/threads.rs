@@ -64,7 +64,7 @@ impl Threads {
     }
   }
 
-  fn get_next_thread(&mut self) -> Option<Thread> {
+  pub fn get_next_thread(&mut self) -> Option<Thread> {
     if self.has_more() {
       self.advance_thread_pointer();
       self.idx(self.loaded.len() - 1)
@@ -141,6 +141,7 @@ impl Thread {
       Messages::new(notmuch_thread_get_messages(self.thread))
     }
   }
+
   #[fixed_stack_segment]
   pub fn toplevel_messages(&self) -> Messages {
     unsafe {

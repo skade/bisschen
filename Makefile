@@ -18,7 +18,7 @@ termbox_files=\
 notmuch_files=\
 					build/notmuch/lib/libnotmuch.dylib
 
-all: bisschen-tags bisschen-threads
+all: bisschen-tags bisschen-threads bisschen-thread
 
 bisschen: libbisschen
 	$(RUSTC) $(RUSTFLAGS) src/bisschen/bisschen.rs
@@ -28,6 +28,9 @@ bisschen-tags: libbisschen libtermbox
 
 bisschen-threads: libbisschen libtermbox
 	$(RUSTC) $(RUSTFLAGS) src/bisschen/bisschen-threads.rs
+
+bisschen-thread: libbisschen libtermbox
+	$(RUSTC) $(RUSTFLAGS) src/bisschen/bisschen-thread.rs
 
 libbisschen: $(notmuch_files) $(termbox_files)
 	mkdir -p build/
