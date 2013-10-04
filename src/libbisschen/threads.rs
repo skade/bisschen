@@ -39,7 +39,7 @@ impl Threads {
     ThreadsIterator { tags: self, index: 0 }
   }
 
-  fn idx(&self, index: uint) -> Option<Thread> {
+  pub fn idx(&self, index: uint) -> Option<Thread> {
     let option = self.loaded.iter().idx(index);
     match option {
       Some(item) => { Some(item.clone()) },

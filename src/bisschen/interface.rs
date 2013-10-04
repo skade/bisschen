@@ -8,6 +8,8 @@ use termbox::cbits::termbox::{tb_cell};
 use bisschen::tags::*;
 use bisschen::threads::*;
 
+use std::run::*;
+
 struct Cursor {
   col: i32,
   line: i32
@@ -27,6 +29,7 @@ struct Line {
 
 trait Lines {
   fn lines(&mut self, offset: uint, limit: uint) -> ~[Line];
+  fn handle_selection(&mut self, line: uint);
 }
 
 trait Drawable {
@@ -55,6 +58,22 @@ impl Lines for Tags {
           Line { line: x.str.to_owned() }
         }).to_owned_vec()
   }
+
+  fn handle_selection(&mut self, line: uint) {
+    let tag = self.idx(line);
+
+    match tag {
+      Some(t) => {
+        let mut last = Process::new("tmux", [~"set-environment", ~"BISSCHEN_LAST_PROGRAM", ~"build/bisschen-tags"], ProcessOptions::new());
+        last.finish();
+        let mut tag = Process::new("tmux", [~"set-environment", ~"BISSCHEN_CURRENT_TAG", t.str.clone()], ProcessOptions::new());
+        tag.finish();
+        let query = ~"build/bisschen-threads --query tag:" + t.str;
+        Process::new("tmux", [~"respawn-pane", ~"-k", query], ProcessOptions::new());
+      },
+      None => {},
+    }
+  }
 }
 
 impl Lines for Threads {
@@ -69,6 +88,10 @@ impl Lines for Threads {
             None => { fail!("Threads should never yield illegal subjects!") }
           }
         }).to_owned_vec()
+  }
+
+  fn handle_selection(&mut self, line: uint) {
+
   }
 }
 
@@ -100,6 +123,11 @@ impl<T: Lines> EventHandler for List<T> {
     match key_press.ch {
       'j' => { self.move_down(); },
       'k' => { self.move_up(); },
+      _ => {}
+    }
+
+    match key_press.key {
+      0x20 => { self.contents.handle_selection(self.selection); },
       _ => {}
     }
   }

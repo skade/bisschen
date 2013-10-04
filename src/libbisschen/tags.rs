@@ -26,7 +26,7 @@ impl Tags {
     TagsIterator { tags: self, index: 0 }
   }
 
-  fn idx(&self, index: uint) -> Option<Tag> {
+  pub fn idx(&self, index: uint) -> Option<Tag> {
     let option = self.loaded.iter().idx(index);
     match option {
       Some(item) => { Some(item.clone()) },

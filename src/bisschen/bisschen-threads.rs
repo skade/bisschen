@@ -8,6 +8,9 @@ use interface::*;
 use options::*;
 use bisschen::threads::*;
 
+use std::os::getenv;
+use std::run::*;
+
 pub mod input;
 pub mod interface;
 pub mod options;
@@ -32,6 +35,18 @@ fn main() {
       Left(kp) => {
         if kp.key == 0x0D {
           return;
+        }
+        if kp.key == 0x7F {
+          let env = getenv("BISSCHEN_LAST_PROGRAM");
+          match env {
+            Some(program) => {
+              Process::new("tmux", [~"respawn-pane", ~"-k", program.clone()], ProcessOptions::new());
+              debug2!("Program: {:?}", program);
+            },
+            None => {
+              debug2!("No last program found");
+            }
+          }
         }
       },
       Right(_) => { },
