@@ -8,8 +8,6 @@ use interface::*;
 use options::*;
 use bisschen::threads::*;
 
-use std::comm::*;
-
 pub mod input;
 pub mod interface;
 pub mod options;
@@ -26,6 +24,7 @@ fn main() {
 
   let list = List::new(threads);
   let mut interface: Interface<List<Threads>> = Interface::new(list);
+  interface.init();
 
   loop {
     let event = Input.poll();

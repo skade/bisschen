@@ -20,6 +20,9 @@ notmuch_files=\
 
 all: bisschen-tags bisschen-threads
 
+bisschen: libbisschen
+	$(RUSTC) $(RUSTFLAGS) src/bisschen/bisschen.rs
+
 bisschen-tags: libbisschen libtermbox
 	$(RUSTC) $(RUSTFLAGS) src/bisschen/bisschen-tags.rs
 

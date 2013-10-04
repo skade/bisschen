@@ -8,8 +8,6 @@ use interface::*;
 use options::*;
 use bisschen::tags::*;
 
-use std::comm::*;
-
 pub mod input;
 pub mod interface;
 pub mod options;
