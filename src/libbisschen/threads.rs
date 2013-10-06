@@ -80,9 +80,10 @@ impl Thread {
   }
 
   #[fixed_stack_segment]
-  pub fn id(&self) -> CString {
+  pub fn id(&self) -> ~str {
     unsafe {
-      CString::new(notmuch_thread_get_thread_id(self.thread), false)
+      let c_string = CString::new(notmuch_thread_get_thread_id(self.thread), false);
+      c_string.as_str().unwrap().to_owned()
     }
   }
 

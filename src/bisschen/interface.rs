@@ -91,14 +91,26 @@ impl Lines for Threads {
   }
 
   fn handle_selection(&mut self, line: uint) {
+    let thread = self.idx(line);
 
+    match thread {
+      Some(t) => {
+        let mut last = Process::new("tmux", [~"set-environment", ~"BISSCHEN_LAST_PROGRAM", ~"build/bisschen-threads"], ProcessOptions::new());
+        last.finish();
+        let mut tag = Process::new("tmux", [~"set-environment", ~"BISSCHEN_CURRENT_THREAD", t.id()], ProcessOptions::new());
+        tag.finish();
+        let query = ~"build/bisschen-thread --query thread:" + t.id();
+        Process::new("tmux", [~"respawn-pane", ~"-k", query], ProcessOptions::new());
+      },
+      None => {},
+    }
   }
 }
 
 impl Lines for Thread {
   fn lines(&mut self, offset: uint, limit: uint) -> ~[Line] {
-    let mut toplevel_messages = self.toplevel_messages();
-    toplevel_messages
+    let mut messages = self.messages();
+    messages
         .iter()
         .map(|x| x.subject())
         .map(|c_string| {
@@ -110,7 +122,18 @@ impl Lines for Thread {
   }
 
   fn handle_selection(&mut self, line: uint) {
+    let mut messages = self.messages();
+    let single_message = messages.iter().skip(line).take(1).to_owned_vec();
+    let m = single_message[0];
 
+    debug2!("message id: {:?}", m.id());
+    let mut last = Process::new("tmux", [~"set-environment", ~"BISSCHEN_LAST_PROGRAM", ~"build/bisschen-thread"], ProcessOptions::new());
+    last.finish();
+    let mut tag = Process::new("tmux", [~"set-environment", ~"BISSCHEN_CURRENT_MESSAGE", m.id()], ProcessOptions::new());
+    tag.finish();
+    let query = ~"notmuch show id:" + m.id() + "| vim -";
+    debug2!("starting process: {:?}", query);
+    Process::new("tmux", [~"respawn-pane", ~"-k", query], ProcessOptions::new());
   }
 }
 
