@@ -10,6 +10,11 @@ use bisschen::threads::*;
 
 use std::run::*;
 
+use std::path::Path;
+use std::rt::io::file::{FileInfo};
+use std::rt::io::Writer;
+use std::rt::io::{Create};
+
 struct Cursor {
   col: i32,
   line: i32
@@ -30,6 +35,7 @@ struct Line {
 trait Lines {
   fn lines(&mut self, offset: uint, limit: uint) -> ~[Line];
   fn handle_selection(&mut self, line: uint);
+  fn handle_reply(&mut self, line: uint);
 }
 
 trait Drawable {
@@ -74,6 +80,9 @@ impl Lines for Tags {
       None => {},
     }
   }
+
+  fn handle_reply(&mut self, _line: uint) {
+  }
 }
 
 impl Lines for Threads {
@@ -105,6 +114,8 @@ impl Lines for Threads {
       None => {},
     }
   }
+  fn handle_reply(&mut self, _line: uint) {
+  }
 }
 
 impl Lines for Thread {
@@ -112,6 +123,8 @@ impl Lines for Thread {
     let mut messages = self.messages();
     messages
         .iter()
+        .skip(offset)
+        .take(limit)
         .map(|x| x.subject())
         .map(|c_string| {
           match c_string.as_str() {
@@ -137,6 +150,38 @@ impl Lines for Thread {
     debug2!("pane_found? {:?}", pane_present);
 
     let program = "vim " + m.filename() + " -c \":silent! %s/<\\_.\\{-1,\\}>//g\" \"+set nowarn\" \"+set filetype=mail\" \"+set foldmethod=syntax\" \"+set noma\" \"+set buftype=nofile\" \"+setlocal noswapfile\"";
+
+    if pane_present == 1 {
+      Process::new("tmux", [~"split-window", ~"-v", program], ProcessOptions::new());
+      Process::new("tmux", [~"select-pane", ~"-t", ~":.0"], ProcessOptions::new());
+    } else {
+      Process::new("tmux", [~"respawn-pane", ~"-k", ~"-t 1", program], ProcessOptions::new());
+      Process::new("tmux", [~"select-pane", ~"-t", ~":.0"], ProcessOptions::new());
+    }
+  }
+
+  fn handle_reply(&mut self, line: uint) {
+    let mut messages = self.messages();
+    let single_message = messages.iter().skip(line).take(1).to_owned_vec();
+    let m = single_message[0];
+
+    debug2!("message id: {:?}", m.id());
+    let mut last = Process::new("tmux", [~"set-environment", ~"BISSCHEN_LAST_PROGRAM", ~"build/bisschen-thread"], ProcessOptions::new());
+    last.finish();
+    let mut tag = Process::new("tmux", [~"set-environment", ~"BISSCHEN_CURRENT_MESSAGE", m.id()], ProcessOptions::new());
+    tag.finish();
+    let mut pane_select = Process::new("tmux", [~"select-pane", ~"-t", ~":.1"], ProcessOptions::new());
+    let pane_present = pane_select.finish();
+
+    debug2!("pane_found? {:?}", pane_present);
+
+    let draft_file_path = &Path("draft.mail");
+    let mut draft_mail = Process::new("notmuch", [~"reply", "id:" + m.id()], ProcessOptions::new());
+    let output = draft_mail.finish_with_output();
+    let mut writer = draft_file_path.open_writer(Create).unwrap();
+    (&mut writer as &mut Writer).write(output.output);
+
+    let program = ~"vim draft.mail -c \":silent! %s/<\\_.\\{-1,\\}>//g\" \"+set nowarn\" \"+set filetype=mail\" \"+set foldmethod=syntax\"  \"+set buftype=nofile\" \"+setlocal noswapfile\"";
 
     if pane_present == 1 {
       Process::new("tmux", [~"split-window", ~"-v", program], ProcessOptions::new());
@@ -176,6 +221,7 @@ impl<T: Lines> EventHandler for List<T> {
     match key_press.ch {
       'j' => { self.move_down(); },
       'k' => { self.move_up(); },
+      'r' => { self.contents.handle_reply(self.selection); },
       _ => {}
     }
 
