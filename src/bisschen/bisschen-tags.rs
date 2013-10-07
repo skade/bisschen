@@ -26,15 +26,6 @@ fn main() {
 
   loop {
     let event = Input.poll();
-    match event {
-      Left(kp) => {
-        if kp.key == 0x0D {
-          return;
-        }
-      },
-      Right(_) => { },
-    }
-
     interface.handle_event(event);
   }
 }

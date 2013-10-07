@@ -36,6 +36,7 @@ trait Lines {
   fn lines(&mut self, offset: uint, limit: uint) -> ~[Line];
   fn handle_selection(&mut self, line: uint);
   fn handle_reply(&mut self, line: uint);
+  fn handle_move(&mut self, line: uint);
 }
 
 trait Drawable {
@@ -70,14 +71,22 @@ impl Lines for Tags {
 
     match tag {
       Some(t) => {
-        let mut last = Process::new("tmux", [~"set-environment", ~"BISSCHEN_LAST_PROGRAM", ~"build/bisschen-tags"], ProcessOptions::new());
-        last.finish();
-        let mut tag = Process::new("tmux", [~"set-environment", ~"BISSCHEN_CURRENT_TAG", t.str.clone()], ProcessOptions::new());
-        tag.finish();
         let query = ~"build/bisschen-threads --query tag:" + t.str;
         Process::new("tmux", [~"respawn-pane", ~"-k", query], ProcessOptions::new());
       },
       None => {},
+    }
+  }
+
+  fn handle_move(&mut self, line: uint) {
+    let tag = self.idx(line);
+
+    match tag {
+      Some(t) => {
+        let mut tag = Process::new("tmux", [~"set", ~"@BISSCHEN_CURRENT_TAG", t.str.clone()], ProcessOptions::new());
+        tag.finish();
+      },
+      None => {}
     }
   }
 
@@ -99,21 +108,21 @@ impl Lines for Threads {
         }).to_owned_vec()
   }
 
-  fn handle_selection(&mut self, line: uint) {
+  fn handle_selection(&mut self, _line: uint) {
+  }
+
+  fn handle_move(&mut self, line: uint) {
     let thread = self.idx(line);
 
     match thread {
       Some(t) => {
-        let mut last = Process::new("tmux", [~"set-environment", ~"BISSCHEN_LAST_PROGRAM", ~"build/bisschen-threads"], ProcessOptions::new());
-        last.finish();
-        let mut tag = Process::new("tmux", [~"set-environment", ~"BISSCHEN_CURRENT_THREAD", t.id()], ProcessOptions::new());
+        let mut tag = Process::new("tmux", [~"set", ~"@BISSCHEN_CURRENT_THREAD", t.id()], ProcessOptions::new());
         tag.finish();
-        let query = ~"build/bisschen-thread --query thread:" + t.id();
-        Process::new("tmux", [~"respawn-pane", ~"-k", query], ProcessOptions::new());
       },
-      None => {},
+      None => {}
     }
   }
+
   fn handle_reply(&mut self, _line: uint) {
   }
 }
@@ -134,30 +143,20 @@ impl Lines for Thread {
         }).to_owned_vec()
   }
 
-  fn handle_selection(&mut self, line: uint) {
+  fn handle_selection(&mut self, _line: uint) {
+
+    //let program = "vim " + m.filename() + " -c \":silent! %s/<\\_.\\{-1,\\}>//g\" \"+set nowarn\" \"+set filetype=mail\" \"+set foldmethod=syntax\" \"+set noma\" \"+set buftype=nofile\" \"+setlocal noswapfile\"";
+  }
+
+  fn handle_move(&mut self, line: uint) {
     let mut messages = self.messages();
     let single_message = messages.iter().skip(line).take(1).to_owned_vec();
     let m = single_message[0];
 
-    debug2!("message id: {:?}", m.id());
-    let mut last = Process::new("tmux", [~"set-environment", ~"BISSCHEN_LAST_PROGRAM", ~"build/bisschen-thread"], ProcessOptions::new());
-    last.finish();
-    let mut tag = Process::new("tmux", [~"set-environment", ~"BISSCHEN_CURRENT_MESSAGE", m.id()], ProcessOptions::new());
-    tag.finish();
-    let mut pane_select = Process::new("tmux", [~"select-pane", ~"-t", ~":.1"], ProcessOptions::new());
-    let pane_present = pane_select.finish();
-
-    debug2!("pane_found? {:?}", pane_present);
-
-    let program = "vim " + m.filename() + " -c \":silent! %s/<\\_.\\{-1,\\}>//g\" \"+set nowarn\" \"+set filetype=mail\" \"+set foldmethod=syntax\" \"+set noma\" \"+set buftype=nofile\" \"+setlocal noswapfile\"";
-
-    if pane_present == 1 {
-      Process::new("tmux", [~"split-window", ~"-v", program], ProcessOptions::new());
-      Process::new("tmux", [~"select-pane", ~"-t", ~":.0"], ProcessOptions::new());
-    } else {
-      Process::new("tmux", [~"respawn-pane", ~"-k", ~"-t 1", program], ProcessOptions::new());
-      Process::new("tmux", [~"select-pane", ~"-t", ~":.0"], ProcessOptions::new());
-    }
+    let mut message = Process::new("tmux", [~"set", ~"@BISSCHEN_CURRENT_MESSAGE", m.id()], ProcessOptions::new());
+    message.finish();
+    let mut message = Process::new("tmux", [~"set", ~"@BISSCHEN_CURRENT_MESSAGE_FILE", m.filename()], ProcessOptions::new());
+    message.finish();
   }
 
   fn handle_reply(&mut self, line: uint) {
@@ -166,10 +165,7 @@ impl Lines for Thread {
     let m = single_message[0];
 
     debug2!("message id: {:?}", m.id());
-    let mut last = Process::new("tmux", [~"set-environment", ~"BISSCHEN_LAST_PROGRAM", ~"build/bisschen-thread"], ProcessOptions::new());
-    last.finish();
-    let mut tag = Process::new("tmux", [~"set-environment", ~"BISSCHEN_CURRENT_MESSAGE", m.id()], ProcessOptions::new());
-    tag.finish();
+
     let mut pane_select = Process::new("tmux", [~"select-pane", ~"-t", ~":.1"], ProcessOptions::new());
     let pane_present = pane_select.finish();
 
@@ -219,14 +215,14 @@ impl<T: Lines> Drawable for List<T> {
 impl<T: Lines> EventHandler for List<T> {
   fn handle_keypress(&mut self, key_press: KeyPress) {
     match key_press.ch {
-      'j' => { self.move_down(); },
-      'k' => { self.move_up(); },
-      'r' => { self.contents.handle_reply(self.selection); },
-      _ => {}
-    }
-
-    match key_press.key {
-      0x20 => { self.contents.handle_selection(self.selection); },
+      'j' => {
+        self.move_down();
+        self.contents.handle_move(self.selection);
+      },
+      'k' => {
+        self.move_up();
+        self.contents.handle_move(self.selection);
+      },
       _ => {}
     }
   }
