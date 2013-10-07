@@ -114,9 +114,10 @@ impl Message {
   }
 
   #[fixed_stack_segment]
-  pub fn filename(&self) -> CString {
+  pub fn filename(&self) -> ~str {
     unsafe {
-      CString::new(notmuch_message_get_filename(self.message),false)
+      let c_string =  CString::new(notmuch_message_get_filename(self.message),false);
+      c_string.as_str().unwrap().to_owned()
     }
   }
 

@@ -131,9 +131,20 @@ impl Lines for Thread {
     last.finish();
     let mut tag = Process::new("tmux", [~"set-environment", ~"BISSCHEN_CURRENT_MESSAGE", m.id()], ProcessOptions::new());
     tag.finish();
-    let query = ~"notmuch show id:" + m.id() + "| vim -";
-    debug2!("starting process: {:?}", query);
-    Process::new("tmux", [~"respawn-pane", ~"-k", query], ProcessOptions::new());
+    let mut pane_select = Process::new("tmux", [~"select-pane", ~"-t", ~":.1"], ProcessOptions::new());
+    let pane_present = pane_select.finish();
+
+    debug2!("pane_found? {:?}", pane_present);
+
+    let program = "vim " + m.filename() + " -c \":silent! %s/<\\_.\\{-1,\\}>//g\" \"+set nowarn\" \"+set filetype=mail\" \"+set foldmethod=syntax\" \"+set noma\" \"+set buftype=nofile\" \"+setlocal noswapfile\"";
+
+    if pane_present == 1 {
+      Process::new("tmux", [~"split-window", ~"-v", program], ProcessOptions::new());
+      Process::new("tmux", [~"select-pane", ~"-t", ~":.0"], ProcessOptions::new());
+    } else {
+      Process::new("tmux", [~"respawn-pane", ~"-k", ~"-t 1", program], ProcessOptions::new());
+      Process::new("tmux", [~"select-pane", ~"-t", ~":.0"], ProcessOptions::new());
+    }
   }
 }
 
