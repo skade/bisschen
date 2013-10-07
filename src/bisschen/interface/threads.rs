@@ -7,13 +7,8 @@ impl Lines for Threads {
     self.iter()
         .skip(offset)
         .take(limit)
-        .map(|x| x.subject())
-        .map(|c_string| {
-          match c_string.as_str() {
-            Some(str) => { Line { line: str.to_owned() } }
-            None => { fail!("Threads should never yield illegal subjects!") }
-          }
-        }).to_owned_vec()
+        .map(|x| Line { fields: ~[x.subject()] } )
+        .to_owned_vec()
   }
 
   fn handle_move(&mut self, line: uint) {

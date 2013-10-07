@@ -109,8 +109,9 @@ impl Message {
     }
   }
 
-  pub fn subject(&self) -> CString {
-    self.header("subject")
+  pub fn subject(&self) -> ~str {
+    let c_string = self.header("subject");
+    c_string.as_str().unwrap().to_owned()
   }
 
   #[fixed_stack_segment]

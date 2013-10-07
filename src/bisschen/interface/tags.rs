@@ -8,7 +8,7 @@ impl Lines for Tags {
         .skip(offset)
         .take(limit)
         .map(|x| {
-          Line { line: x.str.to_owned() }
+          Line { fields: ~[x.str.to_owned()] }
         }).to_owned_vec()
   }
 

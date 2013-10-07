@@ -111,8 +111,8 @@ impl<T: Lines> List<T> {
 
   #[fixed_stack_segment]
   fn print_line(&mut self, line: &Line, no: uint) {
-    let rest = width() as uint - line.line.len();
-    let mut bytes = line.line.as_bytes().to_owned();
+    let rest = width() as uint - line.fields[0].len();
+    let mut bytes = line.fields[0].as_bytes().to_owned();
     bytes.grow_fn(rest, |_| ' ' as u8);
 
     for (offset, ch) in bytes.iter().enumerate() {

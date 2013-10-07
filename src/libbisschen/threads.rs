@@ -95,9 +95,10 @@ impl Thread {
   }
 
   #[fixed_stack_segment]
-  pub fn subject(&self) -> CString {
+  pub fn subject(&self) -> ~str {
     unsafe {
-      CString::new(notmuch_thread_get_subject(self.thread), false)
+      let c_string = CString::new(notmuch_thread_get_subject(self.thread), false);
+      c_string.as_str().unwrap().to_owned()
     }
   }
 
