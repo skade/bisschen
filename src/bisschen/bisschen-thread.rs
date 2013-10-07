@@ -11,6 +11,7 @@ use bisschen::threads::*;
 pub mod input;
 pub mod interface;
 pub mod options;
+pub mod tmux;
 
 fn main() {
   let opts = parse_opts();

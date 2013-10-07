@@ -1,6 +1,6 @@
 use bisschen::threads::*;
-use std::run::*;
 use super::lines::*;
+use tmux::*;
 
 impl Lines for Threads {
   fn lines(&mut self, offset: uint, limit: uint) -> ~[Line] {
@@ -21,8 +21,7 @@ impl Lines for Threads {
 
     match thread {
       Some(t) => {
-        let mut tag = Process::new("tmux", [~"set", ~"@BISSCHEN_CURRENT_THREAD", t.id()], ProcessOptions::new());
-        tag.finish();
+        set(~"BISSCHEN_CURRENT_THREAD", t.id());
       },
       None => {}
     }

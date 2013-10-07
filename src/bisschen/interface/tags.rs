@@ -1,6 +1,6 @@
 use bisschen::tags::*;
-use std::run::*;
 use super::lines::*;
+use tmux::*;
 
 impl Lines for Tags {
   fn lines(&mut self, offset: uint, limit: uint) -> ~[Line] {
@@ -17,8 +17,7 @@ impl Lines for Tags {
 
     match tag {
       Some(t) => {
-        let mut tag = Process::new("tmux", [~"set", ~"@BISSCHEN_CURRENT_TAG", t.str.clone()], ProcessOptions::new());
-        tag.finish();
+        set(~"BISSCHEN_CURRENT_TAG", t.str.clone());
       },
       None => {}
     }
