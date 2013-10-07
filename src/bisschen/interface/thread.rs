@@ -18,11 +18,6 @@ impl Lines for Thread {
         }).to_owned_vec()
   }
 
-  fn handle_selection(&mut self, _line: uint) {
-
-    //let program = "vim " + m.filename() + " -c \":silent! %s/<\\_.\\{-1,\\}>//g\" \"+set nowarn\" \"+set filetype=mail\" \"+set foldmethod=syntax\" \"+set noma\" \"+set buftype=nofile\" \"+setlocal noswapfile\"";
-  }
-
   fn handle_move(&mut self, line: uint) {
     let mut messages = self.messages();
     let single_message = messages.iter().skip(line).take(1).to_owned_vec();

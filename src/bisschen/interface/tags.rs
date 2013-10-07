@@ -12,18 +12,6 @@ impl Lines for Tags {
         }).to_owned_vec()
   }
 
-  fn handle_selection(&mut self, line: uint) {
-    let tag = self.idx(line);
-
-    match tag {
-      Some(t) => {
-        let query = ~"build/bisschen-threads --query tag:" + t.str;
-        Process::new("tmux", [~"respawn-pane", ~"-k", query], ProcessOptions::new());
-      },
-      None => {},
-    }
-  }
-
   fn handle_move(&mut self, line: uint) {
     let tag = self.idx(line);
 

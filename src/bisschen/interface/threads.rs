@@ -16,9 +16,6 @@ impl Lines for Threads {
         }).to_owned_vec()
   }
 
-  fn handle_selection(&mut self, _line: uint) {
-  }
-
   fn handle_move(&mut self, line: uint) {
     let thread = self.idx(line);
 
