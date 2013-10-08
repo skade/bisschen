@@ -90,7 +90,7 @@ impl Thread {
   #[fixed_stack_segment]
   pub fn message_count(&self) -> int {
     unsafe {
-      notmuch_thread_get_total_messages(self.thread).to_int()
+      notmuch_thread_get_total_messages(self.thread).to_int().unwrap()
     }
   }
 
@@ -133,7 +133,7 @@ impl Thread {
   #[fixed_stack_segment]
   pub fn match_messages_count(&self) -> int {
     unsafe {
-      notmuch_thread_get_matched_messages(self.thread).to_int()
+      notmuch_thread_get_matched_messages(self.thread).to_int().unwrap()
     }
   }
 

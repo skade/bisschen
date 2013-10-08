@@ -20,14 +20,14 @@ impl Query {
   #[fixed_stack_segment]
   pub fn message_count(&self) -> int {
     unsafe {
-      notmuch_query_count_messages(self.query).to_int()
+      notmuch_query_count_messages(self.query).to_int().unwrap()
     }
   }
 
   #[fixed_stack_segment]
   pub fn thread_count(&self) -> int {
     unsafe {
-      notmuch_query_count_threads(self.query).to_int()
+      notmuch_query_count_threads(self.query).to_int().unwrap()
     }
   }
 
