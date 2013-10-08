@@ -22,4 +22,8 @@ impl Lines for Tags {
       None => {}
     }
   }
+
+  fn display(&self) -> ~[Display] {
+    ~[FlexString]
+  }
 }

@@ -6,6 +6,7 @@ use termbox::cbits::termbox::*;
 use termbox::cbits::termbox::{tb_cell};
 
 use self::lines::*;
+use std::iter::range_inclusive;
 
 pub mod lines;
 pub mod tags;
@@ -103,32 +104,74 @@ impl<T: Lines> List<T> {
 
   fn display_lines(&mut self) {
     let lines = self.contents.lines(self.offset as uint, height() as uint);
-    for line in lines.iter() {
-      self.print_line(line, self.cursor.line as uint);
-      self.cursor.next_line()
+    let cols = self.contents.display();
+
+    let mut offset = 0;
+    for (i, &display_type) in cols.iter().enumerate() {
+      let col = lines.iter().map(|x| x.fields[i].clone()).to_owned_vec();
+      offset += self.print_cell(display_type, col, offset);
+    }
+  }
+
+  fn print_cell(&self, display_type: Display, lines: ~[~str], offset: uint) -> uint {
+    match display_type {
+      Tree => { self.print_tree(lines, offset) },
+      FlexString => { self.print_flexstring(lines,offset); 0 }
+      _ => { 0 }
+    }
+  }
+
+  fn print_tree(&self, lines: ~[~str], offset: uint) -> uint {
+    let levels: ~[uint] = lines.iter().map(|e| from_str(e.clone()).unwrap()).to_owned_vec();
+    let max_level = levels.iter().max().unwrap();
+
+    for cur_level in range_inclusive(0u, *max_level) {
+      for (row, level) in levels.iter().enumerate() {
+        if *level >= cur_level + 1 {
+          if *level == cur_level + 1 {
+            self.put_str(cur_level.to_i32().unwrap(), row.to_i32().unwrap(), ~"└");
+          } else {
+            self.put_str(cur_level.to_i32().unwrap(), row.to_i32().unwrap(), ~"|");
+          }
+        } else {
+          self.put_str(cur_level.to_i32().unwrap(), row.to_i32().unwrap(), ~" ");
+        }
+      }
+    }
+    *max_level
+  }
+
+  fn print_flexstring(&self, lines: ~[~str], offset: uint) -> uint {
+    let mut width = offset;
+
+    for (row, line) in lines.iter().enumerate() {
+      if line.len() > width {
+        width = line.len();
+      }
+      self.put_str(offset.to_i32().unwrap(), row.to_i32().unwrap(), line.to_owned());
+    }
+    width
+  }
+
+  fn put_str(&self, col: i32, row: i32, string: ~str) {
+    for (offset, ch) in string.iter().enumerate() {
+      let cell;
+      if self.selection == row as uint {
+        cell = tb_cell { character: ch as u32,
+                                        foreground: 5,
+                                        background: 3 };
+      } else {
+        cell = tb_cell { character: ch as u32,
+                            foreground: 4,
+                            background: 8 };
+      }
+      self.put_cell(col + offset.to_i32().unwrap(), row.to_i32().unwrap(), cell);
     }
   }
 
   #[fixed_stack_segment]
-  fn print_line(&mut self, line: &Line, no: uint) {
-    let rest = width() as uint - line.fields[0].len();
-    let mut bytes = line.fields[0].as_bytes().to_owned();
-    bytes.grow_fn(rest, |_| ' ' as u8);
-
-    for (offset, ch) in bytes.iter().enumerate() {
-      let cell;
-      if self.selection == no {
-        cell = tb_cell { character: *ch as u32,
-                             foreground: 5,
-                             background: 3 };
-      } else {
-         cell = tb_cell { character: *ch as u32,
-                             foreground: 4,
-                             background: 8 };
-      }
-
-      unsafe { tb_put_cell(offset.to_i32(), no.to_i32(), &cell); }
-    }
+  fn put_cell(&self, col: i32, row: i32, cell: tb_cell) {
+    unsafe { tb_put_cell(col, row, &cell); }
   }
 
   #[fixed_stack_segment]

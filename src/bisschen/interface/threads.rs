@@ -22,4 +22,7 @@ impl Lines for Threads {
     }
   }
 
+  fn display(&self) -> ~[Display] {
+    ~[FlexString]
+  }
 }

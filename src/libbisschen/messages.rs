@@ -11,7 +11,7 @@ struct Message {
   priv message: *notmuch_message_t,
 }
 
-struct Messages {
+pub struct Messages {
   priv pointer: *notmuch_messages_t,
   priv loaded: ~[Message],
 }
