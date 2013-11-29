@@ -1,11 +1,10 @@
 extern mod extra;
 
-use cbits::notmuch::*;
-use std::c_str::*;
-use std::str::*;
-use messages::*;
-use tags::*;
-use extra::time::*;
+use cbits::notmuch::{notmuch_threads_get, notmuch_threads_move_to_next, notmuch_threads_valid, notmuch_thread_get_thread_id, notmuch_thread_get_messages, notmuch_thread_get_subject, notmuch_thread_get_total_messages, notmuch_thread_get_authors,notmuch_thread_get_oldest_date,notmuch_threads_t,notmuch_thread_t,notmuch_thread_get_newest_date,notmuch_thread_get_tags,notmuch_thread_get_matched_messages,notmuch_thread_get_toplevel_messages};
+use std::c_str::CString;
+use messages::Messages;
+use tags::Tags;
+use extra::time::Timespec;
 
 #[deriving(Clone, Eq)]
 pub struct Thread {
@@ -47,7 +46,6 @@ impl Threads {
     }
   }
 
-  #[fixed_stack_segment]
   fn advance_thread_pointer(&mut self) {
     unsafe {
       let thread = notmuch_threads_get(self.pointer);
@@ -57,7 +55,6 @@ impl Threads {
     }
   }
 
-  #[fixed_stack_segment]
   fn has_more(&self) -> bool {
     unsafe {
       notmuch_threads_valid(self.pointer) == 1
@@ -79,7 +76,6 @@ impl Thread {
     Thread { thread: thread }
   }
 
-  #[fixed_stack_segment]
   pub fn id(&self) -> ~str {
     unsafe {
       let c_string = CString::new(notmuch_thread_get_thread_id(self.thread), false);
@@ -87,14 +83,12 @@ impl Thread {
     }
   }
 
-  #[fixed_stack_segment]
   pub fn message_count(&self) -> int {
     unsafe {
       notmuch_thread_get_total_messages(self.thread).to_int().unwrap()
     }
   }
 
-  #[fixed_stack_segment]
   pub fn subject(&self) -> ~str {
     unsafe {
       let c_string = CString::new(notmuch_thread_get_subject(self.thread), false);
@@ -102,49 +96,42 @@ impl Thread {
     }
   }
 
-  #[fixed_stack_segment]
   pub fn authors(&self) -> CString {
     unsafe {
       CString::new(notmuch_thread_get_authors(self.thread), false)
     }
   }
 
-  #[fixed_stack_segment]
   pub fn oldest_message_date(&self) -> Timespec {
     unsafe {
       Timespec::new(notmuch_thread_get_oldest_date(self.thread), 0)
     }
   }
 
-  #[fixed_stack_segment]
   pub fn newest_message_date(&self) -> Timespec {
     unsafe {
       Timespec::new(notmuch_thread_get_newest_date(self.thread), 0)
     }
   }
 
-  #[fixed_stack_segment]
   pub fn tags(&self) -> Tags {
     unsafe {
       Tags::new(notmuch_thread_get_tags(self.thread))
     }
   }
 
-  #[fixed_stack_segment]
   pub fn match_messages_count(&self) -> int {
     unsafe {
       notmuch_thread_get_matched_messages(self.thread).to_int().unwrap()
     }
   }
 
-  #[fixed_stack_segment]
   pub fn messages(&self) -> Messages {
     unsafe {
       Messages::new(notmuch_thread_get_messages(self.thread))
     }
   }
 
-  #[fixed_stack_segment]
   pub fn toplevel_messages(&self) -> Messages {
     unsafe {
       Messages::new(notmuch_thread_get_toplevel_messages(self.thread))
@@ -154,12 +141,11 @@ impl Thread {
 
 #[cfg(test)]
 mod test {
-  use super::*;
-  use cbits::notmuch::*;
+  use super::Threads;
+  use cbits::notmuch::{notmuch_database_open,notmuch_database_t,notmuch_query_create,notmuch_query_search_threads,NOTMUCH_DATABASE_MODE_READ_ONLY};
   use std::ptr;
-  use std::c_str::*;
-  use std::run::*;
-  use std::str::*;
+  use std::run::{Process,ProcessOptions};
+  use std::str::from_utf8;
   use std::util::id;
 
   fn get_database_path_from_cfg() -> ~str {
@@ -170,26 +156,24 @@ mod test {
     utf8string.trim().to_owned()
   }
 
-  #[fixed_stack_segment]
   fn threads(database: *notmuch_database_t) -> Threads {
     unsafe {
-      do "*".with_c_str |c_string| {
+      "*".with_c_str(|c_string| {
         let query = notmuch_query_create(database, c_string);
         let threads = notmuch_query_search_threads(query);
         Threads::new(threads)
-      }
+      })
     }
   }
 
-  #[fixed_stack_segment]
   fn load_threads_from_database() -> Threads {
     let database_path = get_database_path_from_cfg();
     let database: *notmuch_database_t = ptr::null();
-    do database_path.with_c_str |c_string| {
+    database_path.with_c_str(|c_string| {
       unsafe {
         notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, ptr::to_unsafe_ptr(&database))
       }
-    };
+    });
     threads(database)
   }
 

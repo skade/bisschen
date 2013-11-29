@@ -3,8 +3,8 @@
        vers = "0.1-pre",
        url = "")];
 
-use cbits::termbox::*;
-use std::char::*;
+use cbits::termbox::{tb_init,tb_shutdown,tb_poll_event,tb_event,TB_EVENT_KEY,TB_EVENT_RESIZE};
+use std::char::from_u32;
 
 pub mod cbits;
 
@@ -37,7 +37,6 @@ impl Resize {
   }
 }
 
-#[fixed_stack_segment]
 pub fn poll_event() -> Either<KeyPress, Resize> {
   let event = tb_event { event_type: 0,
                          modifier: 0,
@@ -60,7 +59,6 @@ impl Termbox {
     Termbox { on: false }
   }
 
-  #[fixed_stack_segment]
   pub fn start_boxing(&mut self) {
     unsafe {
       match tb_init() {
@@ -70,7 +68,6 @@ impl Termbox {
     }
   }
 
-  #[fixed_stack_segment]
   pub fn stop_boxing(&mut self) {
     if self.on {
       unsafe { tb_shutdown(); }
@@ -80,7 +77,6 @@ impl Termbox {
 }
 
 impl Drop for Termbox {
-  #[fixed_stack_segment]
   fn drop(&mut self) {
     self.stop_boxing();
   }

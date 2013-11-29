@@ -1,6 +1,6 @@
 RUST ?= rust
-RUSTC ?= rust build
-RUSTTEST ?= rust test
+RUSTC ?= rustc
+RUSTTEST ?= rustc --test
 RUSTFLAGS ?= -O -Z debug-info --out-dir build -L build -L build/notmuch/lib -L build/termbox/lib --link-args="-lnotmuch -ltermbox"
 VERSION=0.1-pre
 
@@ -52,7 +52,7 @@ test: libbisschen-test
 
 libbisschen-test:
 	$(RUSTC) $(RUSTFLAGS) --test src/libbisschen/lib.rs
-	build/lib
+	build/bisschen
 
 clean:
 	git clean -f -d -X

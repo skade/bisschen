@@ -36,27 +36,27 @@ pub mod termbox {
   }
 
   extern {
-    fn tb_init() -> c_int;
-    fn tb_shutdown();
+    pub fn tb_init() -> c_int;
+    pub fn tb_shutdown();
 
-    fn tb_width() -> c_int;
-    fn tb_height() -> c_int;
+    pub fn tb_width() -> c_int;
+    pub fn tb_height() -> c_int;
 
-    fn tb_clear();
-    fn tb_set_clear_attributes(fg: u16, bg: u16);
+    pub fn tb_clear();
+    pub fn tb_set_clear_attributes(fg: u16, bg: u16);
 
-    fn tb_present();
+    pub fn tb_present();
 
-    fn tb_set_cursor(cx: c_int, cy: c_int);
+    pub fn tb_set_cursor(cx: c_int, cy: c_int);
 
-    fn tb_put_cell(x: c_int, y: c_int, cell: *tb_cell);
-    fn tb_change_cell(x: c_int, y: c_int, fg: u16, bg: u16);
+    pub fn tb_put_cell(x: c_int, y: c_int, cell: *tb_cell);
+    pub fn tb_change_cell(x: c_int, y: c_int, fg: u16, bg: u16);
 
-    fn tb_blit(x: c_int, y: c_int, w: c_int, h: c_int, cells: *tb_cell);
+    pub fn tb_blit(x: c_int, y: c_int, w: c_int, h: c_int, cells: *tb_cell);
 
-    fn tb_select_input_mode(mode: input_mode) -> c_int;
+    pub fn tb_select_input_mode(mode: input_mode) -> c_int;
 
-    fn tb_peek_event(event: *tb_event, timeout: c_int) -> event_type;
-    fn tb_poll_event(event: *tb_event) -> event_type;
+    pub fn tb_peek_event(event: *tb_event, timeout: c_int) -> event_type;
+    pub fn tb_poll_event(event: *tb_event) -> event_type;
   }
 }

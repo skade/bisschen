@@ -1,7 +1,7 @@
-use bisschen::threads::*;
-use bisschen::messages::*;
-use super::lines::*;
-use tmux::*;
+use bisschen::threads::Thread;
+use bisschen::messages::Messages;
+use super::lines::{Tree,Line,Lines,FlexString,Display};
+use tmux::set;
 
 fn messages_to_lines(messages: &mut Messages, level: uint) -> ~[Line] {
   let mut res = ~[];

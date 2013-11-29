@@ -1,6 +1,6 @@
-use bisschen::threads::*;
-use super::lines::*;
-use tmux::*;
+use bisschen::threads::Threads;
+use super::lines::{Line,Lines,FlexString,Display};
+use tmux::set;
 
 impl Lines for Threads {
   fn lines(&mut self, offset: uint, limit: uint) -> ~[Line] {

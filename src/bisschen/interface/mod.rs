@@ -1,11 +1,10 @@
 extern mod termbox;
 extern mod bisschen;
 
-use termbox::*;
-use termbox::cbits::termbox::*;
-use termbox::cbits::termbox::{tb_cell};
+use termbox::{Termbox,KeyPress,Resize};
+use termbox::cbits::termbox::{tb_cell,tb_height,tb_width,tb_clear,tb_put_cell,tb_present};
 
-use self::lines::*;
+use self::lines::{Lines,Display,FlexString,Tree};
 use std::iter::range_inclusive;
 
 pub mod lines;
@@ -84,12 +83,10 @@ impl<T: Lines> EventHandler for List<T> {
   fn handle_resize(&mut self, _: Resize) { }
 }
 
-#[fixed_stack_segment]
 fn height() -> i32 {
   unsafe { tb_height() }
 }
 
-#[fixed_stack_segment]
 fn width() -> i32 {
   unsafe { tb_width() }
 }
@@ -154,7 +151,7 @@ impl<T: Lines> List<T> {
   }
 
   fn put_str(&self, col: i32, row: i32, string: ~str) {
-    for (offset, ch) in string.iter().enumerate() {
+    for (offset, ch) in string.chars().enumerate() {
       let cell;
       if self.selection == row as uint {
         cell = tb_cell { character: ch as u32,
@@ -169,18 +166,15 @@ impl<T: Lines> List<T> {
     }
   }
 
-  #[fixed_stack_segment]
   fn put_cell(&self, col: i32, row: i32, cell: tb_cell) {
     unsafe { tb_put_cell(col, row, &cell); }
   }
 
-  #[fixed_stack_segment]
   fn clear(&mut self) {
     unsafe { tb_clear(); }
     self.cursor.reset()
   }
 
-  #[fixed_stack_segment]
   fn refresh(&self) {
     unsafe { tb_present(); }
   }

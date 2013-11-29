@@ -2,11 +2,11 @@ extern mod bisschen;
 extern mod termbox;
 extern mod extra;
 
-use termbox::*;
-use input::*;
-use interface::*;
-use options::*;
-use bisschen::threads::*;
+use termbox::Termbox;
+use input::Input;
+use interface::{Interface,List};
+use options::parse_opts;
+use bisschen::threads::Thread;
 
 pub mod input;
 pub mod interface;

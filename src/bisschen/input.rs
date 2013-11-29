@@ -1,4 +1,4 @@
-use termbox::*;
+use termbox::{poll_event,KeyPress,Resize};
 
 pub struct Input;
 

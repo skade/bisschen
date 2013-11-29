@@ -1,6 +1,5 @@
-use cbits::notmuch::*;
-use std::c_str::*;
-use std::str::*;
+use cbits::notmuch::{notmuch_tags_get,notmuch_tags_move_to_next,notmuch_tags_valid,notmuch_tags_t};
+use std::c_str::CString;
 
 #[deriving(Clone, Eq)]
 pub struct Tag {
@@ -34,7 +33,6 @@ impl Tags {
     }
   }
 
-  #[fixed_stack_segment]
   fn advance_tag_pointer(&mut self) {
     unsafe {
       let tag = notmuch_tags_get(self.pointer);
@@ -50,7 +48,6 @@ impl Tags {
     }
   }
 
-  #[fixed_stack_segment]
   fn has_more(&self) -> bool {
     unsafe {
       notmuch_tags_valid(self.pointer) == 1
@@ -77,12 +74,11 @@ impl<'self> Iterator<Tag> for TagsIterator<'self> {
 
 #[cfg(test)]
 mod test {
-  use super::*;
-  use cbits::notmuch::*;
+  use super::{Tags};
+  use cbits::notmuch::{notmuch_database_open,notmuch_database_t,notmuch_database_get_all_tags,NOTMUCH_DATABASE_MODE_READ_ONLY};
   use std::ptr;
-  use std::c_str::*;
-  use std::run::*;
-  use std::str::*;
+  use std::run::{Process,ProcessOptions};
+  use std::str::from_utf8;
   use std::util::id;
 
   fn get_database_path_from_cfg() -> ~str {
@@ -93,7 +89,6 @@ mod test {
     utf8string.trim().to_owned()
   }
 
-  #[fixed_stack_segment]
   fn tags(database: *notmuch_database_t) -> Tags {
     unsafe {
       let tags = notmuch_database_get_all_tags(database);
@@ -101,15 +96,14 @@ mod test {
     }
   }
 
-  #[fixed_stack_segment]
   fn load_tags_from_database() -> Tags {
     let database_path = get_database_path_from_cfg();
     let database: *notmuch_database_t = ptr::null();
-    do database_path.with_c_str |c_string| {
+    database_path.with_c_str(|c_string| {
       unsafe {
         notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, ptr::to_unsafe_ptr(&database))
       }
-    };
+    });
     tags(database)
   }
 

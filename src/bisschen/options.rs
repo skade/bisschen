@@ -1,8 +1,8 @@
-use extra::getopts::*;
+use extra::getopts::{optopt,optflag,getopts,Matches};
 
 use std::os;
 
-use bisschen::database::*;
+use bisschen::database::Database;
 
 pub fn parse_opts() -> CommandLine {
   let args = os::args();

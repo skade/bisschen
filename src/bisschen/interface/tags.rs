@@ -1,6 +1,6 @@
-use bisschen::tags::*;
-use super::lines::*;
-use tmux::*;
+use bisschen::tags::Tags;
+use super::lines::{Line,Lines,FlexString,Display};
+use tmux::set;
 
 impl Lines for Tags {
   fn lines(&mut self, offset: uint, limit: uint) -> ~[Line] {

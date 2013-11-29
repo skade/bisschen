@@ -1,10 +1,10 @@
 extern mod extra;
 
-use std::c_str::*;
+use std::c_str::CString;
 
-use cbits::notmuch::*;
-use extra::time::*;
-use tags::*;
+use cbits::notmuch::{notmuch_messages_get,notmuch_messages_move_to_next,notmuch_messages_valid,notmuch_message_t,notmuch_message_get_message_id,notmuch_message_get_thread_id,notmuch_message_get_replies,notmuch_messages_t,notmuch_message_get_header,notmuch_message_get_filename,notmuch_message_get_date,notmuch_message_get_tags};
+use extra::time::Timespec;
+use tags::Tags;
 
 #[deriving(Clone, Eq)]
 struct Message {
@@ -39,7 +39,6 @@ impl Messages {
     }
   }
 
-  #[fixed_stack_segment]
   fn advance_message_pointer(&mut self) {
     unsafe {
       let message = notmuch_messages_get(self.pointer);
@@ -49,7 +48,6 @@ impl Messages {
     }
   }
 
-  #[fixed_stack_segment]
   fn has_more(&self) -> bool {
     unsafe {
       notmuch_messages_valid(self.pointer) == 1
@@ -79,7 +77,6 @@ impl Message {
     Message { message: message }
   }
 
-  #[fixed_stack_segment]
   pub fn id(&self) -> ~str {
     unsafe {
       let c_string = CString::new(notmuch_message_get_message_id(self.message), false);
@@ -87,25 +84,23 @@ impl Message {
     }
   }
 
-  #[fixed_stack_segment]
   pub fn thread_id(&self) -> CString {
     unsafe {
       CString::new(notmuch_message_get_thread_id(self.message), false)
     }
   }
 
-  #[fixed_stack_segment]
   pub fn replies(&self) -> Messages {
     unsafe {
       Messages::new(notmuch_message_get_replies(self.message))
     }
   }
 
-  #[fixed_stack_segment]
   pub fn header(&self, header: &str) -> CString {
     unsafe {
-      do header.with_c_str
-        |c_string| { CString::new(notmuch_message_get_header(self.message, c_string), false) }
+      header.with_c_str(|c_string| {
+        CString::new(notmuch_message_get_header(self.message, c_string), false)
+      })
     }
   }
 
@@ -114,7 +109,6 @@ impl Message {
     c_string.as_str().unwrap().to_owned()
   }
 
-  #[fixed_stack_segment]
   pub fn filename(&self) -> ~str {
     unsafe {
       let c_string =  CString::new(notmuch_message_get_filename(self.message),false);
@@ -122,14 +116,12 @@ impl Message {
     }
   }
 
-  #[fixed_stack_segment]
   pub fn date(&self) -> Timespec {
     unsafe {
       Timespec::new(notmuch_message_get_date(self.message), 0)
     }
   }
 
-  #[fixed_stack_segment]
   pub fn tags(&self) -> Tags {
     unsafe {
       Tags::new(notmuch_message_get_tags(self.message))
@@ -139,12 +131,11 @@ impl Message {
 
 #[cfg(test)]
 mod test {
-  use super::*;
-  use cbits::notmuch::*;
+  use super::Messages;
+  use cbits::notmuch::{notmuch_database_open,notmuch_database_t,notmuch_query_create,notmuch_query_search_messages,NOTMUCH_DATABASE_MODE_READ_ONLY};
   use std::ptr;
-  use std::c_str::*;
-  use std::run::*;
-  use std::str::*;
+  use std::run::{Process,ProcessOptions};
+  use std::str::from_utf8;
   use std::util::id;
 
   fn get_database_path_from_cfg() -> ~str {
@@ -155,26 +146,24 @@ mod test {
     utf8string.trim().to_owned()
   }
 
-  #[fixed_stack_segment]
   fn messages(database: *notmuch_database_t) -> Messages {
     unsafe {
-      do "*".with_c_str |c_string| {
+      "*".with_c_str(|c_string| {
         let query = notmuch_query_create(database, c_string);
         let messages = notmuch_query_search_messages(query);
         Messages::new(messages)
-      }
+      })
     }
   }
 
-  #[fixed_stack_segment]
   fn load_messages_from_database() -> Messages {
     let database_path = get_database_path_from_cfg();
     let database: *notmuch_database_t = ptr::null();
-    do database_path.with_c_str |c_string| {
+    database_path.with_c_str(|c_string| {
       unsafe {
         notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, ptr::to_unsafe_ptr(&database))
       }
-    };
+    });
     messages(database)
   }
 
