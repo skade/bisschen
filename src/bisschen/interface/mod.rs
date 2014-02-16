@@ -1,7 +1,7 @@
-extern mod termbox;
-extern mod bisschen;
+extern crate termbox;
+extern crate bisschen;
 
-use termbox::{Termbox,KeyPress,Resize};
+use termbox::{Termbox,Action,KeyPress,Resize};
 use termbox::cbits::termbox::{tb_cell,tb_height,tb_width,tb_clear,tb_put_cell,tb_present};
 
 use self::lines::{Lines,Display,FlexString,Tree};
@@ -31,10 +31,10 @@ trait Drawable {
 }
 
 trait EventHandler {
-  fn handle_event(&mut self, event: Either<KeyPress, Resize>) {
+  fn handle_event(&mut self, event: Action) {
     match event {
-      Left(k) => { self.handle_keypress(k) },
-      Right(r) => { self.handle_resize(r) },
+      KeyPress(k) => { self.handle_keypress(k) },
+      Resize(r) => { self.handle_resize(r) },
     }
   }
 
@@ -216,7 +216,7 @@ impl<T: Drawable + EventHandler> Interface<T> {
     self.view.draw();
   }
 
-  pub fn handle_event(&mut self, event: Either<KeyPress, Resize>) {
+  pub fn handle_event(&mut self, event: Action) {
     self.view.draw();
     self.view.handle_event(event);
     self.view.redraw();

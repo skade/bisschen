@@ -6,14 +6,14 @@ use tags::Tags;
 use query::Query;
 
 pub struct Database {
-  priv database: *notmuch_database_t,
+  database: *notmuch_database_t,
 }
 
 fn get_database_path_from_cfg() -> ~str {
-  let mut pr = Process::new("notmuch", [~"config", ~"get", ~"database.path"], ProcessOptions::new());
+  let mut pr = Process::new("notmuch", [~"config", ~"get", ~"database.path"], ProcessOptions::new()).unwrap();
   let output = pr.finish_with_output();
 
-  let utf8string = from_utf8(output.output);
+  let utf8string = from_utf8(output.output).unwrap();
   utf8string.trim().to_owned()
 }
 
@@ -30,7 +30,7 @@ impl Database {
     database_path.with_c_str(|c_string| {
       unsafe {
         let database: *notmuch_database_t = ptr::null();
-        notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, ptr::to_unsafe_ptr(&database));
+        notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, &database);
         Database::new(database)
       }
     })

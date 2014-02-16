@@ -1,4 +1,4 @@
-use extra::getopts::{optopt,optflag,getopts,Matches};
+use getopts::{optopt,optflag,getopts,Matches};
 
 use std::os;
 
@@ -10,12 +10,9 @@ pub fn parse_opts() -> CommandLine {
   let program = args[0].clone();
 
   let opts = ~[
-    optopt("d"),
-    optopt("database"),
-    optopt("q"),
-    optopt("query"),
-    optflag("h"),
-    optflag("help"),
+    optopt("d", "database", "use database file", "FILE"),
+    optopt("q", "query", "query using", "QUERY"),
+    optflag("h", "help", "print this help menu"),
   ];
 
   let matches = match getopts(args.tail(), opts) {

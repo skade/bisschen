@@ -1,7 +1,7 @@
 RUST ?= rust
 RUSTC ?= rustc
 RUSTTEST ?= rustc --test
-RUSTFLAGS ?= -O -Z debug-info --out-dir build -L build -L build/notmuch/lib -L build/termbox/lib --link-args="-lnotmuch -ltermbox"
+RUSTFLAGS ?= -O --out-dir build -L build -L build/notmuch/lib -L build/termbox/lib -C link-args="-ltermbox -lnotmuch"
 VERSION=0.1-pre
 
 lib_files=\

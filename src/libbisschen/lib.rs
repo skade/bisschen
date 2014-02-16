@@ -1,9 +1,7 @@
 #[crate_type = "lib"];
-#[link(name = "bisschen",
-       vers = "0.1-pre",
-       url = "")];
+#[crate_id = "bisschen"];
 
-extern mod extra;
+extern crate extra;
 
 pub mod cbits;
 pub mod database;

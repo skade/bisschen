@@ -1,4 +1,4 @@
-extern mod extra;
+extern crate extra;
 
 use cbits::notmuch::{notmuch_threads_get, notmuch_threads_move_to_next, notmuch_threads_valid, notmuch_thread_get_thread_id, notmuch_thread_get_messages, notmuch_thread_get_subject, notmuch_thread_get_total_messages, notmuch_thread_get_authors,notmuch_thread_get_oldest_date,notmuch_threads_t,notmuch_thread_t,notmuch_thread_get_newest_date,notmuch_thread_get_tags,notmuch_thread_get_matched_messages,notmuch_thread_get_toplevel_messages};
 use std::c_str::CString;
@@ -16,12 +16,12 @@ pub struct Threads {
   priv loaded: ~[Thread],
 }
 
-pub struct ThreadsIterator<'self> {
-  tags: &'self mut Threads,
+pub struct ThreadsIterator<'a> {
+  tags: &'a mut Threads,
   index: uint,
 }
 
-impl<'self> Iterator<Thread> for ThreadsIterator<'self> {
+impl<'a> Iterator<Thread> for ThreadsIterator<'a> {
   fn next(&mut self) -> Option<Thread> {
     let idx = self.index;
     self.index += 1;

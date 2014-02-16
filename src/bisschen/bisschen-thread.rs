@@ -1,6 +1,7 @@
-extern mod bisschen;
-extern mod termbox;
-extern mod extra;
+extern crate bisschen;
+extern crate termbox;
+extern crate extra;
+extern crate getopts;
 
 use termbox::Termbox;
 use input::Input;

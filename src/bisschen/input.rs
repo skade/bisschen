@@ -1,4 +1,4 @@
-use termbox::{poll_event,KeyPress,Resize};
+use termbox::{poll_event,Action};
 
 pub struct Input;
 
@@ -10,7 +10,7 @@ impl Input {
 //    }
 //  }
 
-  pub fn poll(&self) -> Either<KeyPress, Resize> {
+  pub fn poll(&self) -> Action {
     poll_event()
   }
 }

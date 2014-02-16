@@ -1,4 +1,4 @@
-extern mod extra;
+extern crate extra;
 
 use std::c_str::CString;
 
@@ -8,16 +8,16 @@ use tags::Tags;
 
 #[deriving(Clone, Eq)]
 struct Message {
-  priv message: *notmuch_message_t,
+  message: *notmuch_message_t,
 }
 
 pub struct Messages {
-  priv pointer: *notmuch_messages_t,
-  priv loaded: ~[Message],
+  pointer: *notmuch_messages_t,
+  loaded: ~[Message],
 }
 
-pub struct MessagesIterator<'self> {
-  messages: &'self mut Messages,
+pub struct MessagesIterator<'a> {
+  messages: &'a mut Messages,
   index: uint,
 }
 
@@ -64,7 +64,7 @@ impl Messages {
   }
 }
 
-impl<'self> Iterator<Message> for MessagesIterator<'self> {
+impl<'a> Iterator<Message> for MessagesIterator<'a> {
   fn next(&mut self) -> Option<Message> {
     let idx = self.index;
     self.index += 1;

@@ -1,13 +1,10 @@
 #[crate_type = "lib"];
-#[link(name = "termbox",
-       vers = "0.1-pre",
-       url = "")];
+#[crate_id = "termbox"];
 
 use cbits::termbox::{tb_init,tb_shutdown,tb_poll_event,tb_event,TB_EVENT_KEY,TB_EVENT_RESIZE};
 use std::char::from_u32;
 
 pub mod cbits;
-
 
 pub struct Termbox {
   on: bool,
@@ -31,13 +28,18 @@ pub struct Resize {
   h: i32
 }
 
+pub enum Action {
+  KeyPress(KeyPress),
+  Resize(Resize)
+}
+
 impl Resize {
   fn new(event: tb_event) -> Resize {
     Resize { w: event.w, h: event.h }
   }
 }
 
-pub fn poll_event() -> Either<KeyPress, Resize> {
+pub fn poll_event() -> Action {
   let event = tb_event { event_type: 0,
                          modifier: 0,
                          key: 0,
@@ -48,8 +50,8 @@ pub fn poll_event() -> Either<KeyPress, Resize> {
   unsafe {
     let event_type = tb_poll_event(&event);
     match event_type {
-      TB_EVENT_KEY => { Left(KeyPress::new(event)) },
-      TB_EVENT_RESIZE => { Right(Resize::new(event)) }
+      TB_EVENT_KEY => { KeyPress(KeyPress::new(event)) },
+      TB_EVENT_RESIZE => { Resize(Resize::new(event)) }
     }
   }
 }

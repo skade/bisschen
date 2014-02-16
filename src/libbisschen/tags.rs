@@ -11,8 +11,8 @@ pub struct Tags {
   priv loaded: ~[Tag],
 }
 
-pub struct TagsIterator<'self> {
-  tags: &'self mut Tags,
+pub struct TagsIterator<'a> {
+  tags: &'a mut Tags,
   index: uint,
 }
 
@@ -64,7 +64,7 @@ impl Tags {
   }
 }
 
-impl<'self> Iterator<Tag> for TagsIterator<'self> {
+impl<'a> Iterator<Tag> for TagsIterator<'a> {
   fn next(&mut self) -> Option<Tag> {
     let idx = self.index;
     self.index += 1;
