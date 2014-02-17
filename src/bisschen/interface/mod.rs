@@ -1,7 +1,7 @@
 extern crate termbox;
 extern crate bisschen;
 
-use termbox::{Termbox,Action,KeyPress,Resize};
+use termbox::{Action,KeyPress,Resize};
 use termbox::cbits::termbox::{tb_cell,tb_height,tb_width,tb_clear,tb_put_cell,tb_present};
 
 use self::lines::{Lines,Display,FlexString,Tree};
