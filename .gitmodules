@@ -1,6 +1,6 @@
 [submodule "termbox"]
 	path = termbox
-	url = git@github.com:nsf/termbox.git
+	url = git://github.com/nsf/termbox.git
 [submodule "notmuch"]
 	path = notmuch
 	url = git://notmuchmail.org/git/notmuch
