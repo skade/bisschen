@@ -51,6 +51,7 @@ $(notmuch_files):
 test: libbisschen-test
 
 libbisschen-test:
+	mkdir -p build/
 	$(RUSTC) $(RUSTFLAGS) --test src/libbisschen/lib.rs
 	build/bisschen
 
