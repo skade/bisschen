@@ -50,7 +50,7 @@ $(notmuch_files):
 
 test: libbisschen-test
 
-libbisschen-test:
+libbisschen-test: $(notmuch_files) $(termbox_files)
 	mkdir -p build/
 	$(RUSTC) $(RUSTFLAGS) --test src/libbisschen/lib.rs
 	build/bisschen
