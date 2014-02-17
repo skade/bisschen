@@ -146,13 +146,12 @@ mod test {
   use std::ptr;
   use std::run::{Process,ProcessOptions};
   use std::str::from_utf8;
-  use std::util::id;
 
   fn get_database_path_from_cfg() -> ~str {
     let mut pr = Process::new("notmuch", [~"config", ~"get", ~"database.path"], ProcessOptions::new());
-    let output = pr.finish_with_output();
+    let output = pr.unwrap().finish_with_output();
 
-    let utf8string = from_utf8(output.output);
+    let utf8string = from_utf8(output.output).unwrap();
     utf8string.trim().to_owned()
   }
 
@@ -171,7 +170,7 @@ mod test {
     let database: *notmuch_database_t = ptr::null();
     database_path.with_c_str(|c_string| {
       unsafe {
-        notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, ptr::to_unsafe_ptr(&database))
+        notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, &database)
       }
     });
     threads(database)
@@ -189,13 +188,13 @@ mod test {
     assert_eq!(threads.idx(2), None);
 
     for thread in threads.iter().take(20) {
-      id(thread);
+      thread;
     }
 
     assert!(!threads.idx(2).is_none());
 
     for thread in threads.iter().take(30) {
-      id(thread);
+      thread;
     }
   }
 }

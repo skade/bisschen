@@ -79,13 +79,12 @@ mod test {
   use std::ptr;
   use std::run::{Process,ProcessOptions};
   use std::str::from_utf8;
-  use std::util::id;
 
   fn get_database_path_from_cfg() -> ~str {
     let mut pr = Process::new("notmuch", [~"config", ~"get", ~"database.path"], ProcessOptions::new());
-    let output = pr.finish_with_output();
+    let output = pr.unwrap().finish_with_output();
 
-    let utf8string = from_utf8(output.output);
+    let utf8string = from_utf8(output.output).unwrap();
     utf8string.trim().to_owned()
   }
 
@@ -101,7 +100,7 @@ mod test {
     let database: *notmuch_database_t = ptr::null();
     database_path.with_c_str(|c_string| {
       unsafe {
-        notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, ptr::to_unsafe_ptr(&database))
+        notmuch_database_open(c_string, NOTMUCH_DATABASE_MODE_READ_ONLY, &database)
       }
     });
     tags(database)
@@ -119,14 +118,14 @@ mod test {
     assert_eq!(tags.idx(1), None);
 
     for tag in tags.iter().take(2) {
-      id(tag);
+      tag;
     }
 
     assert!(!tags.idx(1).is_none());
     assert!(tags.idx(2).is_none());
 
     for tag in tags.iter().take(3) {
-      id(tag);
+      tag;
     }
 
     assert!(!tags.idx(2).is_none());
